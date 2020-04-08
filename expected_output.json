@@ -1,0 +1,129 @@
+{
+    "Analysis": [
+        {
+            "Anomaly": true,
+            "filename": "5.3-5.4",
+            "value": 0.7535048097381816
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.4-5.5",
+            "value": 0.9246708216717495
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.5-5.6",
+            "value": 1.1353633594279067
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.6-5.7",
+            "value": 1.1992229638714338
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.7-5.8",
+            "value": 1.21016869022823
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.8-5.9",
+            "value": 1.223029470289646
+        },
+        {
+            "Anomaly": true,
+            "filename": "5.9-6.0",
+            "value": 1.1161080290507912
+        },
+        {
+            "Anomaly": true,
+            "filename": "6.0-6.1",
+            "value": 1.1606997999689264
+        },
+        {
+            "Anomaly": true,
+            "filename": "6.1-6.2",
+            "value": 0.7813820070940662
+        },
+        {
+            "Anomaly": true,
+            "filename": "6.2-6.3",
+            "value": 0.7745939254032602
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.4-8.5",
+            "value": 0.8053420911723268
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.5-8.6",
+            "value": 1.0099748563343156
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.6-8.7",
+            "value": 1.3235280209872318
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.7-8.8",
+            "value": 1.393773053314583
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.8-8.9",
+            "value": 1.3984066323171696
+        },
+        {
+            "Anomaly": true,
+            "filename": "8.9-9.0",
+            "value": 1.3161578774623242
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.0-9.1",
+            "value": 1.2450406168950494
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.1-9.2",
+            "value": 1.319219072878892
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.2-9.3",
+            "value": 1.3703956037550902
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.3-9.4",
+            "value": 1.122279049571011
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.4-9.5",
+            "value": 0.8086636352061205
+        },
+        {
+            "Anomaly": true,
+            "filename": "9.5-9.6",
+            "value": 0.6704964893241829
+        },
+        {
+            "Anomaly": true,
+            "filename": "11.7-11.8",
+            "value": 0.878770296884569
+        },
+        {
+            "Anomaly": true,
+            "filename": "11.8-11.9",
+            "value": 1.232618333125029
+        },
+        {
+            "Anomaly": true,
+            "filename": "11.9-12.0",
+            "value": 1.2408806646885306
+        }
+    ]
+}
