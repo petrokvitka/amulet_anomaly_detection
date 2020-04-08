@@ -27,6 +27,7 @@ timesteps = 10
 
 #model = load_model('./new_test/sound_anomality_detection.h5')
 model = load_model('./sound_anomality_detection.h5')
+model._make_predict_function()
 print("Model loaded!")
 
 def read_wav(filename, seconds, fft_first = False):
