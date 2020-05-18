@@ -2,6 +2,12 @@
 <html lang="en">
 
 <head>
+  <script type="text/javascript">
+  function showFileName() {
+    var fil = document.getElementById("myFile");
+    alert(fil.value);
+  }
+  </script>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
@@ -107,6 +113,22 @@
             </div>
           </div>
 
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+          <form action="{{ url_for('predict')}}"method="post">
+            <!--input type="text" name="sales in first month" placeholder="sales in first month" required="required" />
+            <input type="text" name="sales in second month" placeholder="sales in second month" required="required" /-->
+            <input type="file" id="my_file" name="my_file" />
+            <a href="#" onclick="showFileName()">Show File Name</a>
+            <button type="submit" class="btn btn-primary btn-block btn-large">Predict sales in third month</button>
+          </form>
+
+          <br>
+          <br>
+          {{ prediction_text }}
         </div>
       </div>
 
