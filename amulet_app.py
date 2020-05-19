@@ -32,6 +32,9 @@ print("Model loaded!")
 
 @app.route('/')
 def home():
+	"""
+	This function calls the html template for the home site.
+	"""
 	return render_template('index.html')
 
 def read_wav(filename, seconds, fft_first = False):
@@ -147,6 +150,12 @@ def prepare_reshape(X, timesteps):
 
 
 def detect_anomalies(file_name):
+	"""
+	This function prepares the signal from wav file for the model and calculates
+	the MAE to detect anomalies.
+	:param file_name: name of wav file to read and process
+	:returns: dictionary in suitable for JSONify format with found anomalies
+	"""
 	data_out = {}
 
 	df = read_wav(file_name, 0.1)
@@ -190,9 +199,13 @@ def detect_anomalies(file_name):
 
 @app.route("/predict", methods=["POST"])
 def predict():
+	"""
+	This function works through the HTML template, it extracts the wav file set
+	by a user.
+	:returns: the anomalies will be printed to the html template
+	"""
 
 	features = [str(x) for x in request.form.values()]
-	#return render_template('index.html', prediction_text = 'Detect for {}'.format(features[0]))
 	file = features[0]
 
 	data_out = detect_anomalies(file)
@@ -200,10 +213,13 @@ def predict():
 	return render_template('index.html', prediction_text = 'Results {}'.format(data_out))
 
 
-
 #process request to the /submit endpoint
 @app.route("/submit", methods=["POST"])
 def submit():
+	"""
+	This function works with Postman or curl.
+	:returns: anomalies in JSON format
+	"""
 
 	file = request.files["data_file"]
 	if not file:
