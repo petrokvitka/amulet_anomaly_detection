@@ -55,3 +55,37 @@ input {
 	transition: box-shadow .5s ease;
 }
 input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgba(255,255,255,0.2); }
+
+
+table {
+  font-family: arial, sans-serif;
+	font-size: 13px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #333333;
+}
+
+
+/* The scrollable part */
+
+.scrollable {
+  height: 150px;
+  overflow-y: scroll;
+  border-bottom: 1px solid #333333;
+}
+
+th {
+  position: sticky;
+  background-color: #21468a;
+  z-index: 2;
+  top: 0;
+}

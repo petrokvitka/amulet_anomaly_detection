@@ -21,24 +21,26 @@
    <br>
    <br>
    <!-- pre>{{ prediction_text }}</pre -->
-   <table border="1">
-    <thead>
-        <tr>
-            <th>Anomaly</th>
-            <th>Value</th>
-            <th>Seconds</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in anomalies %}
-        <tr>
-            {% for key, value in row.items() %}
-              <td>{{ value }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </tbody>
-   </table>
+   <div class="scrollable">
+     <table>
+      <thead>
+          <tr>
+              <th>Anomaly</th>
+              <th>Value</th>
+              <th>Seconds</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for row in anomalies %}
+          <tr>
+              {% for key, value in row.items() %}
+                <td>{{ value }}</td>
+              {% endfor %}
+          </tr>
+          {% endfor %}
+      </tbody>
+     </table>
+   </div>
 
  </div>
 
