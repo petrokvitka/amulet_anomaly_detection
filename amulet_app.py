@@ -10,13 +10,13 @@ This is a Flask app for our service.
 # Imports
 import pandas as pd
 import numpy as np
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, render_template_string
 from tensorflow.keras.models import load_model
 from sklearn.externals import joblib
 import librosa
 from math import floor
 import sys
-import json
+#import json
 
 # initialize the Flask application
 app = Flask(__name__)
@@ -190,7 +190,8 @@ def detect_anomalies(file_name):
 		for j in range(len(triggered)):
 			out = triggered[j]
 			result = {"Anomaly": True, "value": out[0], "seconds": out.name}
-			data_out["Analysis"].append(result)
+			#data_out["Analysis"].append(result)
+			data_out.append(result)
 
 	else:
 		result = {"Anomaly": "No anomalies detected"}
@@ -210,10 +211,28 @@ def predict():
 	file = features[0]
 
 	data_out = detect_anomalies(file)
-	response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
+	#response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
+	#return render_template('index.html', prediction_text = response) #'Results {}'.format(data_out)
+	return render_template_string('''
 
-	return render_template('index.html',
-							prediction_text = response) #'Results {}'.format(data_out)
+		<table>
+			<tr>
+				<td> Seconds </td>
+				<td> Anomaly </td>
+				<td> Value </td>
+			</tr>
+
+			{% for anomaly, value, seconds in labels.items() %}
+				<tr>
+					<td>{{ seconds }}</td>
+					<td>{{ anomaly }}</td>
+					<td>{{ value }}</td>
+				</tr>
+			{% endfor %}
+
+
+		</table>
+	''', labels=data_out)
 
 
 #process request to the /submit endpoint
