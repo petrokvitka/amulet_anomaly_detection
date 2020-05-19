@@ -16,6 +16,7 @@ from sklearn.externals import joblib
 import librosa
 from math import floor
 import sys
+import json
 
 # initialize the Flask application
 app = Flask(__name__)
@@ -209,8 +210,10 @@ def predict():
 	file = features[0]
 
 	data_out = detect_anomalies(file)
+	response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
 
-	return render_template('index.html', prediction_text = 'Results {}'.format(data_out))
+	return render_template('index.html',
+							prediction_text = response) #'Results {}'.format(data_out)
 
 
 #process request to the /submit endpoint

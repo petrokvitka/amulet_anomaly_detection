@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta charset="UTF-8">
+<title>Anomaly Detection</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body style="background: #000;">
+ <div class="login">
+	<h1>AMULET Anomaly Detection</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+    	<input type="file" id="my_file" name="my_file" placeholder="wav file" required="required"/>
+      <button type="submit" class="btn btn-primary btn-block btn-large">Detect anomalies in this wav file!</button>
+    </form>
+
+   <br>
+   <br>
+   <pre>{{ prediction_text }}</pre>
+
+ </div>
+
+
+</body>
+</html>
