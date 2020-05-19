@@ -118,6 +118,8 @@ def read_wav(filename, seconds, fft_first = False):
 
 		merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
 
+	print(merged_data) #<--------------------
+
 	return merged_data
 
 def prepare_reshape(X, timesteps):
@@ -144,21 +146,10 @@ def prepare_reshape(X, timesteps):
 	return X
 
 
-@app.route("/predict", methods=["POST"])
-def predict():
-	features = [str(x) for x in request.form.values()]
-	return render_template('index.html', prediction_text = 'Detect for ${}'.format(features))
-
-
-#process request to the /submit endpoint
-@app.route("/submit", methods=["POST"])
-def submit():
+def detect_anomalies(file_name):
 	data_out = {}
 
-	file = request.files["data_file"]
-	if not file:
-		return "No file submitted"
-	df = read_wav(file, 0.1)
+	df = read_wav(file_name, 0.1)
 
 	#normalize the data
 	scaler = joblib.load('./new_test/scaler')
@@ -188,23 +179,40 @@ def submit():
 	if len(triggered) > 0:
 		for j in range(len(triggered)):
 			out = triggered[j]
-			result = {"Anomaly": True, "value": out[0], "filename": out.name}
+			result = {"Anomaly": True, "value": out[0], "seconds": out.name}
 			data_out["Analysis"].append(result)
 
 	else:
 		result = {"Anomaly": "No anomalies detected"}
 		data_out["Analysis"].append(result)
 
+	return data_out
+
+@app.route("/predict", methods=["POST"])
+def predict():
+
+	features = [str(x) for x in request.form.values()]
+	#return render_template('index.html', prediction_text = 'Detect for {}'.format(features[0]))
+	file = features[0]
+
+	data_out = detect_anomalies(file)
+
+	return render_template('index.html', prediction_text = 'Results {}'.format(data_out))
+
+
+
+#process request to the /submit endpoint
+@app.route("/submit", methods=["POST"])
+def submit():
+
+	file = request.files["data_file"]
+	if not file:
+		return "No file submitted"
+
+	data_out = detect_anomalies(file)
+
 	return jsonify(data_out)
 
-"""
-@app.route('/results', methods=["POST"])
-def results():
-	data = request.get_json(force=True)
-	prediction = model.predict()
-	output = prediction[0]
-	return jsonify(output)
-"""
 
 if __name__ == '__main__':
 	print("* Loading the Keras model and starting the server..."
