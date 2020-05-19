@@ -10,7 +10,7 @@ This is a Flask app for our service.
 # Imports
 import pandas as pd
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from tensorflow.keras.models import load_model
 from sklearn.externals import joblib
 import librosa
@@ -21,14 +21,18 @@ import sys
 app = Flask(__name__)
 
 # anomaly threshold
-#limit = joblib.load('./new_test/anomality_threshold')
-limit = joblib.load('./anomality_threshold')
+limit = joblib.load('./new_test/anomality_threshold')
+#limit = joblib.load('./anomality_threshold')
 timesteps = 10
 
-#model = load_model('./new_test/sound_anomality_detection.h5')
-model = load_model('./sound_anomality_detection.h5')
+model = load_model('./new_test/sound_anomality_detection.h5')
+#model = load_model('./sound_anomality_detection.h5')
 model._make_predict_function()
 print("Model loaded!")
+
+@app.route('/')
+def home():
+	return render_template('index.html')
 
 def read_wav(filename, seconds, fft_first = False):
 	"""
@@ -139,6 +143,13 @@ def prepare_reshape(X, timesteps):
 
 	return X
 
+
+@app.route("/predict", methods=["POST"])
+def predict():
+	features = [str(x) for x in request.form.values()]
+	return render_template('index.html', prediction_text = 'Detect for ${}'.format(features))
+
+
 #process request to the /submit endpoint
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -150,8 +161,8 @@ def submit():
 	df = read_wav(file, 0.1)
 
 	#normalize the data
-	#scaler = joblib.load('./new_test/scaler')
-	scaler = joblib.load('./scaler')
+	scaler = joblib.load('./new_test/scaler')
+	#scaler = joblib.load('./scaler')
 	X = scaler.transform(df)
 	#reshape dataset for lstm
 	X = prepare_reshape(X, timesteps)
@@ -186,6 +197,14 @@ def submit():
 
 	return jsonify(data_out)
 
+"""
+@app.route('/results', methods=["POST"])
+def results():
+	data = request.get_json(force=True)
+	prediction = model.predict()
+	output = prediction[0]
+	return jsonify(output)
+"""
 
 if __name__ == '__main__':
 	print("* Loading the Keras model and starting the server..."
