@@ -16,7 +16,7 @@ from sklearn.externals import joblib
 import librosa
 from math import floor
 import sys
-#import json
+import json
 
 # initialize the Flask application
 app = Flask(__name__)
@@ -122,9 +122,8 @@ def read_wav(filename, seconds, fft_first = False):
 
 		merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
 
-	print(merged_data) #<--------------------
-
 	return merged_data
+
 
 def prepare_reshape(X, timesteps):
 	"""
@@ -185,19 +184,19 @@ def detect_anomalies(file_name):
 		temp = scored.iloc[i]
 		if temp.iloc[2]:
 			triggered.append(temp)
-	print(len(triggered))
+	#print(len(triggered))
 	if len(triggered) > 0:
 		for j in range(len(triggered)):
 			out = triggered[j]
-			result = {"Anomaly": True, "value": out[0], "seconds": out.name}
-			#data_out["Analysis"].append(result)
-			data_out.append(result)
+			result = {"Anomaly": True, "value": round(out[0], 4), "seconds": out.name}
+			data_out["Analysis"].append(result)
 
 	else:
 		result = {"Anomaly": "No anomalies detected"}
 		data_out["Analysis"].append(result)
 
 	return data_out
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -210,29 +209,11 @@ def predict():
 	features = [str(x) for x in request.form.values()]
 	file = features[0]
 
-	data_out = detect_anomalies(file)
+	data_out = detect_anomalies(file)['Analysis']
+	print(data_out)
+	return render_template('index.html', anomalies = data_out)
 	#response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
 	#return render_template('index.html', prediction_text = response) #'Results {}'.format(data_out)
-	return render_template_string('''
-
-		<table>
-			<tr>
-				<td> Seconds </td>
-				<td> Anomaly </td>
-				<td> Value </td>
-			</tr>
-
-			{% for anomaly, value, seconds in labels.items() %}
-				<tr>
-					<td>{{ seconds }}</td>
-					<td>{{ anomaly }}</td>
-					<td>{{ value }}</td>
-				</tr>
-			{% endfor %}
-
-
-		</table>
-	''', labels=data_out)
 
 
 #process request to the /submit endpoint
