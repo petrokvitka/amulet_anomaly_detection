@@ -10,25 +10,33 @@ This is a Flask app for our service.
 # Imports
 import pandas as pd
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, render_template_string
 from tensorflow.keras.models import load_model
 from sklearn.externals import joblib
 import librosa
 from math import floor
 import sys
+import json
 
 # initialize the Flask application
 app = Flask(__name__)
 
 # anomaly threshold
-#limit = joblib.load('./new_test/anomality_threshold')
-limit = joblib.load('./anomality_threshold')
+limit = joblib.load('./new_test/anomality_threshold')
+#limit = joblib.load('./anomality_threshold')
 timesteps = 10
 
-#model = load_model('./new_test/sound_anomality_detection.h5')
-model = load_model('./sound_anomality_detection.h5')
+model = load_model('./new_test/sound_anomality_detection.h5')
+#model = load_model('./sound_anomality_detection.h5')
 model._make_predict_function()
 print("Model loaded!")
+
+@app.route('/')
+def home():
+	"""
+	This function calls the html template for the home site.
+	"""
+	return render_template('index.html')
 
 def read_wav(filename, seconds, fft_first = False):
 	"""
@@ -116,6 +124,7 @@ def read_wav(filename, seconds, fft_first = False):
 
 	return merged_data
 
+
 def prepare_reshape(X, timesteps):
 	"""
 	This function prepares the data for the model through reshaping. It is important
@@ -139,19 +148,21 @@ def prepare_reshape(X, timesteps):
 
 	return X
 
-#process request to the /submit endpoint
-@app.route("/submit", methods=["POST"])
-def submit():
+
+def detect_anomalies(file_name):
+	"""
+	This function prepares the signal from wav file for the model and calculates
+	the MAE to detect anomalies.
+	:param file_name: name of wav file to read and process
+	:returns: dictionary in suitable for JSONify format with found anomalies
+	"""
 	data_out = {}
 
-	file = request.files["data_file"]
-	if not file:
-		return "No file submitted"
-	df = read_wav(file, 0.1)
+	df = read_wav(file_name, 0.1)
 
 	#normalize the data
-	#scaler = joblib.load('./new_test/scaler')
-	scaler = joblib.load('./scaler')
+	scaler = joblib.load('./new_test/scaler')
+	#scaler = joblib.load('./scaler')
 	X = scaler.transform(df)
 	#reshape dataset for lstm
 	X = prepare_reshape(X, timesteps)
@@ -173,16 +184,51 @@ def submit():
 		temp = scored.iloc[i]
 		if temp.iloc[2]:
 			triggered.append(temp)
-	print(len(triggered))
+	#print(len(triggered))
 	if len(triggered) > 0:
 		for j in range(len(triggered)):
 			out = triggered[j]
-			result = {"Anomaly": True, "value": out[0], "filename": out.name}
+			result = {"Anomaly": True, "value": round(out[0], 4), "seconds": out.name}
 			data_out["Analysis"].append(result)
 
 	else:
 		result = {"Anomaly": "No anomalies detected"}
 		data_out["Analysis"].append(result)
+
+	return data_out
+
+
+@app.route("/predict", methods=["POST"])
+def predict():
+	"""
+	This function works through the HTML template, it extracts the wav file set
+	by a user.
+	:returns: the anomalies will be printed to the html template
+	"""
+
+	features = [str(x) for x in request.form.values()]
+	file = features[0]
+
+	data_out = detect_anomalies(file)['Analysis']
+	#print(data_out)
+	return render_template('index.html', anomalies = data_out)
+	#response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
+	#return render_template('index.html', prediction_text = response) #'Results {}'.format(data_out)
+
+
+#process request to the /submit endpoint
+@app.route("/submit", methods=["POST"])
+def submit():
+	"""
+	This function works with Postman or curl.
+	:returns: anomalies in JSON format
+	"""
+
+	file = request.files["data_file"]
+	if not file:
+		return "No file submitted"
+
+	data_out = detect_anomalies(file)
 
 	return jsonify(data_out)
 
