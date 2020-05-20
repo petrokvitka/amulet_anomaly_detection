@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html>
 
-<script type="text/javascript">
-  function showFileName() {
-    var fil = document.getElementById("my_file").value;
-    document.getElementById("test").innerHTML = fil;
-  }
-  </script>
-
 <head>
 <meta charset="UTF-8">
 <title>Anomaly Detection</title>
@@ -23,7 +16,7 @@
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
     	<input type="file" id="my_file" name="my_file" placeholder="wav file" required="required"/>
-      <button type="submit" onclick="showFileName()" class="btn btn-primary btn-block btn-large">Detect anomalies in this wav file!</button>
+      <button type="submit" class="btn btn-primary btn-block btn-large">Detect anomalies in this wav file!</button>
     </form>
 
    <br>
