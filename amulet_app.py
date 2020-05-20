@@ -211,7 +211,7 @@ def predict():
 
 	data_out = detect_anomalies(file)['Analysis']
 	#print(data_out)
-	return render_template('index.html', anomalies = data_out)
+	return render_template('index.html', anomalies = data_out, my_file = file)
 	#response = json.dumps(data_out, sort_keys = False, indent = 4, separators = (':', ' '))
 	#return render_template('index.html', prediction_text = response) #'Results {}'.format(data_out)
 
