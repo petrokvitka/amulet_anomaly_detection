@@ -94,7 +94,7 @@ tr:nth-child(even) {
 /* The scrollable part */
 
 .scrollable {
-  height: 150px;
+  height: 200px;
   overflow-y: scroll;
   /*border-bottom: 1px solid #333333;*/
 }
@@ -118,7 +118,9 @@ th {
   align-items: center;
   flex-direction: column;
   text-align: center;
-	max-width: 60%;
+	font-size: 13px;
+	font-family: 'Helvetica';
+	/*max-width: 60%;*/
 }
 
 .column {
@@ -129,9 +131,9 @@ th {
 
 .row:after {
 	display: table;
-	width: 60%;
+	/*width: 60%;*/
 	table-layout: fixed;
-	border-spacing: 10px;
+	border-spacing: 50px;
 	/*clear: both;*/
 }
 
@@ -154,6 +156,7 @@ th {
 
 .feature-block h4 {
   margin-bottom: 20px;
+	color: #21468a;
 }
 
 .feature-block p {
