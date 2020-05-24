@@ -31,12 +31,21 @@ body {
 
 }
 .login {
-	position: absolute;
-	top: 30%;
-	left: 48%;
-	margin: -150px 0 0 -150px;
-	width: 400px;
-	height: 400px;
+	/*position: absolute;*/
+	/*top: 10%;
+	left: 40%;
+	margin: 10px 0 0 10px;
+	width: 400px;*/
+	/*height: 400px;*/
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	text-align: center;
 }
 
 .login h1 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
@@ -44,15 +53,12 @@ body {
 input {
 	width: 100%;
 	margin-bottom: 10px;
-	background: rgba(0,0,0,0.3);
+	background: rgba(0,0,0,0.01);
 	border: none;
 	outline: none;
 	padding: 7px;
 	font-size: 13px;
-	color: #fff;
-	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-	border: 1px solid rgba(0,0,0,0.3);
-	border-radius: 4px;
+	color: #black;
 	box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
 	-webkit-transition: box-shadow .5s ease;
 	-moz-transition: box-shadow .5s ease;
@@ -63,8 +69,8 @@ input {
 input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgba(255,255,255,0.2); }
 
 img {
-	max-width: 65%;
-	margin-bottom: 30px;
+	max-width: 20%;
+	margin-bottom: 10px;
 }
 
 table {
@@ -99,4 +105,70 @@ th {
   background-color: #0d63a5;
   z-index: 2;
   top: 0;
+}
+
+.container {
+	/*position: absolute;*/
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+	max-width: 60%;
+}
+
+.column {
+	/*float: left;
+	width: 33.33%;*/
+	display: table-cell;
+}
+
+.row:after {
+	display: table;
+	width: 60%;
+	table-layout: fixed;
+	border-spacing: 10px;
+	/*clear: both;*/
+}
+
+.feature-block {
+  background: #fff none repeat scroll 0 0;
+  padding: 30px 20px;
+  transition: all 0.5s ease-in-out 0s;
+}
+
+@media (max-width: 991px) {
+  .feature-block {
+    margin-bottom: 30px;
+  }
+}
+
+.feature-block:hover {
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease-in-out 0s;
+}
+
+.feature-block h4 {
+  margin-bottom: 20px;
+}
+
+.feature-block p {
+  margin-bottom: 20px;
+}
+
+.feature-block a {
+  color: #505050;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: 0.3s;
+}
+
+.feature-block a:hover {
+  color: #71c55d;
 }
