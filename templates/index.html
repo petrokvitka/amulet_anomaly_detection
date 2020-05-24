@@ -3,27 +3,38 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Anomaly Detection</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>AMULET</title>
 
+<!-- Favicon -->
+<!-- Favicon -->
+<link rel="icon" href="{{url_for('static', filename='css/amulet_favicon.png')}}">
+
+<!-- css -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 </head>
 
-<body style="background: #000;">
+<body> <!--style="background: #000;"-->
  <div class="login">
-	<h1>AMULET Anomaly Detection</h1>
+	<!--h1>AMULET Anomaly Detection</h1-->
+  <img src="static/css/amulet_logo_huge.png">
 
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
-    	<input type="file" id="my_file" name="my_file" placeholder="wav file" required="required"/>
+    	<input type="file" name="my_file" placeholder="wav file" required="required"/>
       <button type="submit" class="btn btn-primary btn-block btn-large">Detect anomalies in this wav file!</button>
+      <br>
+      <br>
     </form>
 
-   <br>
-   <br>
    <!-- pre>{{ prediction_text }}</pre -->
 
+   <br>
+   <br>
+
    {{ my_file }}
+
 
    <div class="scrollable">
      <table>
@@ -47,6 +58,51 @@
    </div>
 
  </div>
+
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+
+ <div class="container">
+   <div class="row">
+
+     <div class="column">
+       <div class="feature-block">
+
+         <img src="static/css/robot.svg" alt="img" class="img-fluid">
+         <h4>MACHINE LEARNING</h4>
+         <p>AMULET uses an Autoencoder to learn what an electric motor sounds like normally. If there are any deviations from the normal sound, AMULET will report an anomaly.</p>
+       </div>
+     </div>
+
+     <div class="column">
+       <div class="feature-block">
+
+         <img src="static/css/heart.png" alt="img" class="img-fluid">
+         <h4>USER FRIENDLY</h4>
+         <p>We made AMULET easy to use: chose a sound file from your computer and AMULET will provide you the information about the motor with 0.1 sec step!</p>
+        </div>
+     </div>
+
+     <div class="column">
+       <div class="feature-block">
+
+         <img src="static/css/clock.png" alt="img" class="img-fluid">
+         <h4>EARLY ANOMALY DETECTION</h4>
+         <p>Innovative technology and precise data mining enables early detection of anomalies, which saves not only time, but also immense amount of finances.</p>
+       </div>
+     </div>
+
+   </div>
+ </div>
+
+
 
 
 </body>
