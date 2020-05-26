@@ -13,6 +13,8 @@ COPY new_test/sound_anomality_detection.h5 /app
 COPY new_test/scaler /app
 COPY new_test/anomality_threshold /app
 
+COPY templates /app/templates
+
 RUN python3 -m pip install -r requirements.txt
 
 EXPOSE 5000
