@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, Text
+from tkinter import filedialog, Text, PhotoImage
 from tensorflow.keras.models import load_model
 import joblib
 import librosa
@@ -23,6 +23,10 @@ def ui_main():
     root.wm_title("Browser")
     bro_button = tk.Button(master = root, text = "Browse", width = 80, height = 25, command = browse_file)
     bro_button.pack(side = tk.LEFT, padx = 2, pady = 2)
+
+    submit_button_image = PhotoImage(file = r"./submit_button.png")
+    submit_button = tk.Button(master = root, image = submit_button_image)
+    submit_button.pack()
 
     tk.mainloop()
 
