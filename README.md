@@ -1,4 +1,4 @@
-![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet_logo_huge.png)
+![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/static/css/amulet_logo_huge.png)
 ## Acoustic anomaly detection in electric motor using autoencoder.
 
 AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an application that uses machine learning methods (LSTM layers in autoencoder) for detection of an anomaly based on the sound of the electric motor.
