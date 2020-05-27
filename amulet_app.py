@@ -16,18 +16,18 @@ import joblib
 import librosa
 from math import floor
 import sys
-#import json
+import json
 
 # initialize the Flask application
 app = Flask(__name__)
 
 # anomaly threshold
-#limit = joblib.load('./new_test/anomality_threshold')
-limit = joblib.load('./anomality_threshold')
+limit = joblib.load('./new_test/anomality_threshold')
+#limit = joblib.load('./anomality_threshold')
 timesteps = 10
 
-#model = load_model('./new_test/sound_anomality_detection.h5')
-model = load_model('./sound_anomality_detection.h5')
+model = load_model('./new_test/sound_anomality_detection.h5')
+#model = load_model('./sound_anomality_detection.h5')
 model._make_predict_function()
 print("Model loaded!")
 
@@ -161,8 +161,8 @@ def detect_anomalies(file_name):
 	df = read_wav(file_name, 0.1)
 
 	#normalize the data
-	#scaler = joblib.load('./new_test/scaler')
-	scaler = joblib.load('./scaler')
+	scaler = joblib.load('./new_test/scaler')
+	#scaler = joblib.load('./scaler')
 	X = scaler.transform(df)
 	#reshape dataset for lstm
 	X = prepare_reshape(X, timesteps)
