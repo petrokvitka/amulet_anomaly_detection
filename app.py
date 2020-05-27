@@ -11,17 +11,53 @@ import os
 
 from PIL import Image, ImageTk
 
+from amulet_app import detect_anomalies
+
 model = load_model('./new_test/sound_anomality_detection.h5')
+
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
 
 
 def predict_file():
-    print("predicting ")
+    data_out = detect_anomalies(FILENAME)
+
+    if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
+        root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
+        canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image)
+    else:
+        column_names = canvas.create_text(260, 370, text = "Anomaly  Value  Seconds")
+        #rect = canvas.create_rectangle(0, 310, 550, 290, fill = "white", outline = "white") #add a box to hide the filename from the past
+        #canvas.tag_lower(rect, fname_label)
+
+        table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
+
+        root.widgets = {}
+        row = 0
+        for r in data_out['Analysis']:
+            row += 1
+            root.widgets[row] = {
+                "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
+                "Value": tk.Label(table, text = str(r["value"]) + "   "),
+                "Seconds": tk.Label(table, text = r["seconds"] + "   ")
+            }
+
+            root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
+            root.widgets[row]["Value"].grid(row = row, column = 2, sticky = "nsew")
+            root.widgets[row]["Seconds"].grid(row = row, column = 3, sticky = "nsew")
+
+        table.grid_columnconfigure(1, weight = 1)
+        table.grid_columnconfigure(2, weight = 3)
+        table.grid_columnconfigure(3, weight = 3)
+        table.grid_rowconfigure(row + 1, weight = 1)
+
+        canvas.create_window(180, 390, anchor = tk.NW, window = table)
+
 
 def browse_file():
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
+    global FILENAME
     FILENAME = fname
 
     fname_label = canvas.create_text(270, 300, text = os.path.basename(fname))
@@ -52,6 +88,7 @@ predict_image = ImageTk.PhotoImage(Image.open("submit_button.png").resize((250, 
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
 predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
 
+"""
 # ---------- table ----------
 table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
 
@@ -79,5 +116,7 @@ table.grid_columnconfigure(3, weight = 3)
 table.grid_rowconfigure(row + 1, weight = 1)
 
 canvas.create_window(180, 370, anchor = tk.NW, window = table)
+"""
+
 
 tk.mainloop()
