@@ -53,7 +53,31 @@ predict_button = tk.Button(master = root, text = "", image = predict_image, comm
 predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
 
 # ---------- table ----------
-table = tk.Frame(canvas, width = 410, height = 400, bg = "white")
-canvas.create_window(70, 370, anchor = tk.NW, window = table)
+table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
+
+
+example_list = [{"Anomaly": True, "value": 1.1234, "seconds": "2.2-2.3"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.2-2.3"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.3-2.4"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.4-2.5"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.5-2.6"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.6-2.7"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.7-2.8"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.8-2.9"}, {"Anomaly": True, "value": 1.1234, "seconds": "3.0-3.1"},
+{"Anomaly": True, "value": 1.1234, "seconds": "2.5-2.6"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.6-2.7"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.7-2.8"}, {"Anomaly": True, "value": 1.1234, "seconds": "2.8-2.9"}, {"Anomaly": True, "value": 1.1234, "seconds": "3.0-3.1"}]
+
+root.widgets = {}
+row = 0
+for r in example_list:
+    row += 1
+    root.widgets[row] = {
+        "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
+        "Value": tk.Label(table, text = str(r["value"]) + "   "),
+        "Seconds": tk.Label(table, text = r["seconds"] + "   ")
+    }
+
+    root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
+    root.widgets[row]["Value"].grid(row = row, column = 2, sticky = "nsew")
+    root.widgets[row]["Seconds"].grid(row = row, column = 3, sticky = "nsew")
+
+table.grid_columnconfigure(1, weight = 1)
+table.grid_columnconfigure(2, weight = 3)
+table.grid_columnconfigure(3, weight = 3)
+table.grid_rowconfigure(row + 1, weight = 1)
+
+canvas.create_window(180, 370, anchor = tk.NW, window = table)
 
 tk.mainloop()
