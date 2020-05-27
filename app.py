@@ -16,8 +16,8 @@ WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
 
 
-def predict_file(fname):
-    print("predicting ", fname)
+def predict_file():
+    print("predicting ")
 
 def browse_file():
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
@@ -35,53 +35,22 @@ root.title("AMULET")
 root.resizable(False, False)
 root.iconphoto(False, PhotoImage(file = 'static/css/amulet_favicon.png'))
 
+# ---------- background canvas ----------
 canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
-canvas.pack(expand = True) #, fill = "both")
-
+canvas.pack(expand = True)
 background_image = ImageTk.PhotoImage(Image.open("amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
 canvas.background = background_image #keep a reference in case this code is put in a function
 bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
+# ---------- browse file button ----------
 bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file) # width = 80, height = 25,
 #bro_button.pack(side = tk.LEFT, padx = 2, pady = 2, expand = True)
 bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
 
-
-    #canvas.itemconfig(fname_id, text = str(FILENAME))
+# ---------- predict anomalies button ----------
+predict_image = ImageTk.PhotoImage(Image.open("submit_button.png").resize((250, 30), Image.ANTIALIAS))
+predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
+predict_button_window = canvas.create_window(150, 320, anchor = tk.NW, window = predict_button)
 
 
 tk.mainloop()
-
-#ui_main()
-
-"""
-root = tk.Tk()
-apps = []
-
-def addApp():
-
-    for widget in frame.winfo_children():
-        widget.destroy()
-
-    filename = filedialog.askopenfilename(initialdir = "/", title = "Select File") #, filetypes = (("executables", "*.exe"), ("all files", "*.*")))
-    apps.append(filename)
-    print(filename)
-    for app in apps:
-        label = tk.Label(frame, text = app, bg = "gray")
-        label.pack()
-
-
-canvas = tk.Canvas(root, height = 700, width = 700, bg = "#263D42")
-canvas.pack()
-
-frame = tk.Frame(root, bg = "white")
-frame.place(relwidth = 0.8, relheight = 0.8, relx = 0.1, rely = 0.1)
-
-openFile = tk.Button(root, text = "Open File", padx = 10, pady = 5, fg = "white", bg = "#263D42", command = addApp())
-openFile.pack()
-
-runApps = tk.Button(root, text = "Run Apps", padx = 10, pady = 5, fg = "white", bg = "#263D42")
-runApps.pack()
-
-root.mainloop()
-"""
