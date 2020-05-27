@@ -17,13 +17,15 @@ def predict_file(fname):
     print("predicting ", fname)
 
 def browse_file():
-    fname = filedialog.askopenfilename()
+    fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
     result = predict_file(fname)
     print("Browsed and predicted")
 
 def ui_main():
     root = tk.Tk()
-    root.wm_title("AMULET")
+    root.title("AMULET")
+    root.resizable(False, False)
+    root.iconphoto(False, PhotoImage(file = 'static/css/amulet_favicon.png'))
 
     canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
     canvas.pack(expand = True) #, fill = "both")
@@ -32,9 +34,9 @@ def ui_main():
     canvas.background = background_image #keep a reference in case this code is put in a function
     bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
-    bro_button = tk.Button(master = root, text = "Browse", command = browse_file) # width = 80, height = 25,
+    bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file) # width = 80, height = 25,
     #bro_button.pack(side = tk.LEFT, padx = 2, pady = 2, expand = True)
-    bro_button_window = canvas.create_window(10, 10, anchor = tk.NW, window = bro_button)
+    bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
     """
     submit_button_image = PhotoImage(file = r"./submit_button.png")
     submit_button = tk.Button(master = root, image = submit_button_image)
