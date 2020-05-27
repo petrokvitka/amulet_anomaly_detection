@@ -50,7 +50,7 @@ bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_
 # ---------- predict anomalies button ----------
 predict_image = ImageTk.PhotoImage(Image.open("submit_button.png").resize((250, 30), Image.ANTIALIAS))
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
-predict_button_window = canvas.create_window(150, 320, anchor = tk.NW, window = predict_button)
+predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
 
 
 tk.mainloop()
