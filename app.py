@@ -7,45 +7,55 @@ from math import floor
 import pandas as pd
 import numpy as np
 import sys
+import os
 
 from PIL import Image, ImageTk
 
 model = load_model('./new_test/sound_anomality_detection.h5')
 WIDTH, HEIGTH = 550, 1000
 
+
 def predict_file(fname):
     print("predicting ", fname)
 
 def browse_file():
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
-    result = predict_file(fname)
+
+    #result = predict_file(fname)
     print("Browsed and predicted")
+    fname_label = canvas.create_text(270, 300, text = os.path.basename(fname))
+    rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white")
+    canvas.tag_lower(rect, fname_label)
 
-def ui_main():
-    root = tk.Tk()
-    root.title("AMULET")
-    root.resizable(False, False)
-    root.iconphoto(False, PhotoImage(file = 'static/css/amulet_favicon.png'))
 
-    canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
-    canvas.pack(expand = True) #, fill = "both")
 
-    background_image = ImageTk.PhotoImage(Image.open("amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
-    canvas.background = background_image #keep a reference in case this code is put in a function
-    bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
+root = tk.Tk()
+root.title("AMULET")
+root.resizable(False, False)
+root.iconphoto(False, PhotoImage(file = 'static/css/amulet_favicon.png'))
 
-    bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file) # width = 80, height = 25,
-    #bro_button.pack(side = tk.LEFT, padx = 2, pady = 2, expand = True)
-    bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
-    """
-    submit_button_image = PhotoImage(file = r"./submit_button.png")
-    submit_button = tk.Button(master = root, image = submit_button_image)
-    submit_button.pack(expand = True)
-    """
+canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
+canvas.pack(expand = True) #, fill = "both")
 
-    tk.mainloop()
+background_image = ImageTk.PhotoImage(Image.open("amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
+canvas.background = background_image #keep a reference in case this code is put in a function
+bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
-ui_main()
+w = tk.Label(master = root, text = "File Path:")
+e = canvas.create_text(200, 500, text = "bubu")
+b = tk.Button(master = root, text = "Browse", command = browse_file)
+
+bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file) # width = 80, height = 25,
+#bro_button.pack(side = tk.LEFT, padx = 2, pady = 2, expand = True)
+bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
+
+
+    #canvas.itemconfig(fname_id, text = str(FILENAME))
+
+
+tk.mainloop()
+
+#ui_main()
 
 """
 root = tk.Tk()
