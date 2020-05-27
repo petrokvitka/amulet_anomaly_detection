@@ -52,5 +52,8 @@ predict_image = ImageTk.PhotoImage(Image.open("submit_button.png").resize((250, 
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
 predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
 
+# ---------- table ----------
+table = tk.Frame(canvas, width = 410, height = 400, bg = "white")
+canvas.create_window(70, 370, anchor = tk.NW, window = table)
 
 tk.mainloop()
