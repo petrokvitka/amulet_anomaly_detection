@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, Text, PhotoImage
+from tkinter import filedialog, Text, PhotoImage, messagebox
 from tensorflow.keras.models import load_model
 import joblib
 import librosa
@@ -20,38 +20,44 @@ FILENAME = ""
 
 
 def predict_file():
-    data_out = detect_anomalies(FILENAME)
+    # ---------- check if there is a file chosen ----------
+    if FILENAME == "":
+        print("There was no file provided!")
+        messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
-    if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
-        root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-        canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
     else:
-        column_names = canvas.create_text(260, 370, text = "Anomaly  Value  Seconds", tag = "columns")
-        #rect = canvas.create_rectangle(0, 310, 550, 290, fill = "white", outline = "white") #add a box to hide the filename from the past
-        #canvas.tag_lower(rect, fname_label)
+        data_out = detect_anomalies(FILENAME)
 
-        table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
+        if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
+            root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
+            canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
+        else:
+            column_names = canvas.create_text(260, 370, text = "Anomaly  Value  Seconds", tag = "columns")
+            #rect = canvas.create_rectangle(0, 310, 550, 290, fill = "white", outline = "white") #add a box to hide the filename from the past
+            #canvas.tag_lower(rect, fname_label)
 
-        root.widgets = {}
-        row = 0
-        for r in data_out['Analysis']:
-            row += 1
-            root.widgets[row] = {
-                "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
-                "Value": tk.Label(table, text = str(r["value"]) + "   "),
-                "Seconds": tk.Label(table, text = r["seconds"] + "   ")
-            }
+            table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
 
-            root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
-            root.widgets[row]["Value"].grid(row = row, column = 2, sticky = "nsew")
-            root.widgets[row]["Seconds"].grid(row = row, column = 3, sticky = "nsew")
+            root.widgets = {}
+            row = 0
+            for r in data_out['Analysis']:
+                row += 1
+                root.widgets[row] = {
+                    "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
+                    "Value": tk.Label(table, text = str(r["value"]) + "   "),
+                    "Seconds": tk.Label(table, text = r["seconds"] + "   ")
+                }
 
-        table.grid_columnconfigure(1, weight = 1)
-        table.grid_columnconfigure(2, weight = 3)
-        table.grid_columnconfigure(3, weight = 3)
-        table.grid_rowconfigure(row + 1, weight = 1)
+                root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
+                root.widgets[row]["Value"].grid(row = row, column = 2, sticky = "nsew")
+                root.widgets[row]["Seconds"].grid(row = row, column = 3, sticky = "nsew")
 
-        canvas.create_window(180, 390, anchor = tk.NW, window = table, tag = "result_table")
+            table.grid_columnconfigure(1, weight = 1)
+            table.grid_columnconfigure(2, weight = 3)
+            table.grid_columnconfigure(3, weight = 3)
+            table.grid_rowconfigure(row + 1, weight = 1)
+
+            canvas.create_window(180, 390, anchor = tk.NW, window = table, tag = "result_table")
 
 
 def browse_file():
@@ -103,6 +109,5 @@ predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = 
 reset_image = ImageTk.PhotoImage(Image.open("reset_white.png").resize((100, 70), Image.ANTIALIAS))
 clear_button = tk.Button(master = root, text = "", image = reset_image, command=clear_canvas)
 clear_button_window = canvas.create_window(450, 930, anchor = tk.NW, window = clear_button)
-
 
 tk.mainloop()
