@@ -65,6 +65,9 @@ def browse_file():
 
     global FILENAME
     FILENAME = fname
+    canvas.delete("columns")
+    canvas.delete("result_table")
+    canvas.delete("no_anomalies")
 
     fname_label = canvas.create_text(270, 300, text = os.path.basename(fname), tag = "shown_fname")
     #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
