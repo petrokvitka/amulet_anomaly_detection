@@ -1,12 +1,15 @@
+#!/usr/bin/env python
+
+"""
+This is a Tkinter desktop app for AMULET.
+
+@author: Anastasiia Petrova
+@contact: petrokvitka@gmail.com
+
+"""
 import tkinter as tk
-from tkinter import filedialog, Text, PhotoImage, messagebox
+from tkinter import filedialog, PhotoImage, messagebox
 from tensorflow.keras.models import load_model
-import joblib
-import librosa
-from math import floor
-import pandas as pd
-import numpy as np
-import sys
 import os
 
 from PIL import Image, ImageTk
@@ -20,27 +23,27 @@ FILENAME = ""
 
 
 def predict_file():
+    """
+    This function calls the AMULET to detect anomalies and finally shows
+    that no anomalies were detected or a table with detected anomalies.
+    """
     # ---------- check if there is a file chosen ----------
     if FILENAME == "":
         print("There was no file provided!")
         messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
     else:
-        #root.robot_image = ImageTk.PhotoImage(Image.open('robot_calculating.png').resize((300, 300), Image.ANTIALIAS))
-        #canvas.create_image(120, 370, anchor = tk.NW, image = root.robot_image, tag = "robot")
-
-        #canvas.create_text(260, 370, text = "Please wait! Calculating...")
-
+        # ---------- check for anomalies ----------
         data_out = detect_anomalies(FILENAME)
 
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
+
             root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-            #canvas.delete("robot")
             canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
+
         else:
+
             column_names = canvas.create_text(260, 370, text = "Anomaly  Value  Seconds", tag = "columns")
-            #rect = canvas.create_rectangle(0, 310, 550, 290, fill = "white", outline = "white") #add a box to hide the filename from the past
-            #canvas.tag_lower(rect, fname_label)
 
             table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
 
@@ -51,7 +54,7 @@ def predict_file():
                 root.widgets[row] = {
                     "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
                     "Value": tk.Label(table, text = str(r["value"]) + "   "),
-                    "Seconds": tk.Label(table, text = r["seconds"] + "   ")
+                    "Seconds": tk.Label(table, text = r["seconds"] + " ")
                 }
 
                 root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
@@ -63,11 +66,14 @@ def predict_file():
             table.grid_columnconfigure(3, weight = 3)
             table.grid_rowconfigure(row + 1, weight = 1)
 
-            #canvas.delete("robot")
             canvas.create_window(180, 390, anchor = tk.NW, window = table, tag = "result_table")
 
 
 def browse_file():
+    """
+    This function helps a user to chose a wav file from the computer.
+    The name of the chosen file will show up under the button.
+    """
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
     global FILENAME
@@ -83,6 +89,10 @@ def browse_file():
 
 
 def clear_canvas():
+    """
+    This function awakes after clicking on the "Reset" button and clears
+    everything for the next run of AMULET.
+    """
     global FILENAME
     FILENAME = ""
 
@@ -93,6 +103,7 @@ def clear_canvas():
     canvas.delete("no_anomalies")
 
 
+# ---------- basic settings ----------
 root = tk.Tk()
 root.title("AMULET")
 root.resizable(False, False)
@@ -106,8 +117,7 @@ canvas.background = background_image #keep a reference in case this code is put 
 bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
 # ---------- browse file button ----------
-bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file) # width = 80, height = 25,
-#bro_button.pack(side = tk.LEFT, padx = 2, pady = 2, expand = True)
+bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file)
 bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
 
 # ---------- predict anomalies button ----------
@@ -120,4 +130,5 @@ reset_image = ImageTk.PhotoImage(Image.open("reset_white.png").resize((100, 70),
 clear_button = tk.Button(master = root, text = "", image = reset_image, command=clear_canvas)
 clear_button_window = canvas.create_window(450, 930, anchor = tk.NW, window = clear_button)
 
+# ---------- run tkinter desktop app ----------
 tk.mainloop()
