@@ -26,10 +26,16 @@ def predict_file():
         messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
     else:
+        #root.robot_image = ImageTk.PhotoImage(Image.open('robot_calculating.png').resize((300, 300), Image.ANTIALIAS))
+        #canvas.create_image(120, 370, anchor = tk.NW, image = root.robot_image, tag = "robot")
+
+        #canvas.create_text(260, 370, text = "Please wait! Calculating...")
+
         data_out = detect_anomalies(FILENAME)
 
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
             root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
+            canvas.delete("robot")
             canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
         else:
             column_names = canvas.create_text(260, 370, text = "Anomaly  Value  Seconds", tag = "columns")
@@ -57,6 +63,7 @@ def predict_file():
             table.grid_columnconfigure(3, weight = 3)
             table.grid_rowconfigure(row + 1, weight = 1)
 
+            canvas.delete("robot")
             canvas.create_window(180, 390, anchor = tk.NW, window = table, tag = "result_table")
 
 
