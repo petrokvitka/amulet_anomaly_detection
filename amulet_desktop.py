@@ -9,14 +9,11 @@ This is a Tkinter desktop app for AMULET.
 """
 import tkinter as tk
 from tkinter import filedialog, PhotoImage, messagebox
-from tensorflow.keras.models import load_model
 import os
 
 from PIL import Image, ImageTk
 
-from amulet_app import detect_anomalies
-
-model = load_model('./new_test/sound_anomality_detection.h5')
+from amulet import detect_anomalies
 
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
