@@ -35,7 +35,7 @@ def predict_file():
 
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
 
-            root.no_anomalies_image = ImageTk.PhotoImage(Image.open("no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
+            root.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
             canvas.create_image(120, 370, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
 
         else:
@@ -75,6 +75,9 @@ def browse_file():
 
     global FILENAME
     FILENAME = fname
+
+    print("You have chosen this file: ", fname)
+
     canvas.delete("columns")
     canvas.delete("result_table")
     canvas.delete("no_anomalies")
@@ -99,17 +102,19 @@ def clear_canvas():
     canvas.delete("result_table")
     canvas.delete("no_anomalies")
 
+    print("Canvas is reseted!")
+
 
 # ---------- basic settings ----------
 root = tk.Tk()
 root.title("AMULET")
 root.resizable(False, False)
-root.iconphoto(False, PhotoImage(file = 'static/css/amulet_favicon.png'))
+root.iconphoto(False, PhotoImage(file = 'static/img/amulet_favicon.png'))
 
 # ---------- background canvas ----------
 canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
 canvas.pack(expand = True)
-background_image = ImageTk.PhotoImage(Image.open("amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
+background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
 canvas.background = background_image #keep a reference in case this code is put in a function
 bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
@@ -118,12 +123,12 @@ bro_button = tk.Button(master = root, text = "Choose a wav file", command = brow
 bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
 
 # ---------- predict anomalies button ----------
-predict_image = ImageTk.PhotoImage(Image.open("submit_button.png").resize((250, 30), Image.ANTIALIAS))
+predict_image = ImageTk.PhotoImage(Image.open("static/img/submit_button.png").resize((250, 30), Image.ANTIALIAS))
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
 predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
 
 # ----------- clear button ----------
-reset_image = ImageTk.PhotoImage(Image.open("reset_white.png").resize((100, 70), Image.ANTIALIAS))
+reset_image = ImageTk.PhotoImage(Image.open("static/img/reset_white.png").resize((100, 70), Image.ANTIALIAS))
 clear_button = tk.Button(master = root, text = "", image = reset_image, command=clear_canvas)
 clear_button_window = canvas.create_window(450, 930, anchor = tk.NW, window = clear_button)
 
