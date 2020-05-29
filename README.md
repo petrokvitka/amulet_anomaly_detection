@@ -38,7 +38,7 @@ There are two ways to test the AMULET application within the Docker.
 
 
 ### 2. Installation and usage as a Desktop App
-To use AMULET as a Desktop App, please install [Anaconca](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
+To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
 `conda env create -f amulet-env.yml`
 
 Activate this environment running:
@@ -50,7 +50,7 @@ Now you are ready to run the AMULET as a Desktop App. Use the command inside the
 A new window will appear. You can browse for a wav file and check it for anomalies. Please note that clickint the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
 
 ### 3. Installation and usage in a Browser (running on a local server)
-At last there is a possibility to use AMULET in a browser of your choice. To do so, please follow the previous instructions to install and activate the environment file. When the environment is up and running, use the next command:
+At last there is a possibility to use AMULET in a browser of your choice. To do so, please follow the previous instructions to install and activate the Anaconda environment file. When the environment is up and running, use the next command:
 `python amulet_browser.py`
 
 To use the AMULET, visit your [localhost](http://localhost:5000). Please note that the files you want to test with AMULET should be transfered to this very directory you have cloned from Github.
