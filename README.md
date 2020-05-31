@@ -43,6 +43,8 @@ To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.
 
 Activate this environment running:
 `conda activate amulet-env`
+Or if you are on Windows:
+`conda activate amulet-env-windows`
 
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
 `python amulet_desktop.py`
