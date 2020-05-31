@@ -131,5 +131,3 @@ dependencies:
     - resampy==0.2.2
     - scikit-learn==0.22.1
     - soundfile==0.10.3.post1
-prefix: /home/anastasiia/anaconda3/envs/amulet-env
-
