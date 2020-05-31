@@ -41,8 +41,12 @@ There are two ways to test the AMULET application within the Docker.
 To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
 `conda env create -f amulet-env.yml`
 
+Or if you are using Windows:
+`conda env create -f amulet-env-windows.yml`
+
 Activate this environment running:
 `conda activate amulet-env`
+
 Or if you are on Windows:
 `conda activate amulet-env-windows`
 
