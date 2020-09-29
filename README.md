@@ -22,6 +22,36 @@ Another useful parameters that could be often used are the `--output_dir` to set
 To learn more about the other parameters, use the command mentioned above and read the description about possible parameters and their defaults.
 
 
+### Train DCGAN model
+!!! Attention !!!
+This model is used for comparison purposes only. It is not deployed behind the GUI.
+
+To create the corresponding conda environment, use:
+`conda env create -f dcgan.yml`
+
+After the environment has been successfully created, activate it with:
+`conda activate dcgan`
+
+Now the first step is to create a data set for the DCGAN training. The training of both Discriminator and Generator inside the GAN runs simultaneously, so it is important to prepare the data beforehand and load it in batches for the training. To create a data set, a single audio file or a directory with audio files could be used. The script will generate MFCCs for each second of the input file/files and store these MFCCs in the specified directory. It is important to provide only the sound of an intact bearing for the training. To learn about the parameters for this script, run the following command:
+`python create_database.py --help`
+
+The user can specify the name of the output directory with the parameter `--output_dir` and the type of the data with the parameter `--prefix`. This allows the user to create the MFCCs not only for the training, but also for the testing purposes, setting the parameter `--prefix defect` and using the audio recording of a defect bearing.
+
+The structure of the resulted data set is as follows:
+- :open_file_folder: train_data
+  - :open_file_folder: train
+    - numerous MFCCs for the training
+  - :page_facing_up: list of paths to the created MFCCs
+  
+After the data set is prepared for the training, the next script can be run with the following command:
+`python train_dcgan.py --help`
+
+This script expects the generated in the previous step data set for the training. To specify the path to the data set, use the parameter `--dataset`. The parameter `--input_mfccs` is identical to the `--prefix` parameter in the previous step. It is also required to specify the list of created MFCCs and their paths with the parameter `--dataset_list`. The user has a possibility to choose between training of a model and anomalies detection, using corresponding parameters `--train` or `--detect`. If the anomalies detection was chosen, the Checkpoint of a trained model should be loaded. Provide the path to the checkpoint with the parameter `--checkpoint`.
+
+The DCGAN training requires longer time and needs more computational power. Good models can only be achieved after at least 700 epochs training. Each of the epoch has 5 iteration. Set the number of desired epochs with the parameter `--epochs`. The model is saved in Checkpoints during the training to be able to restore the needed state of the training for anomalies detection or for the further training.
+
+If the parameter `--detect` was chosen, the provided Checkpoint will be loaded and the trained Generator will create MFCC which represent the learned normal state of the bearing. This generater MFCC can be compared with the real one and if the differences between them are higher than the anomaly threshold, the anomaly will be announced. To calculate the anomaly threshold and compare real vs generated MFCC the helping script is used currently. 
+`python evaluate_dcgan.py`
 
 
 ### Test state model
