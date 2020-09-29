@@ -102,9 +102,6 @@ def parse_args():
 	# for roc
 	parser.add_argument('--anomaly_limit_by_hand', type = float, help = "You can provide the anomaly limit for the model by hand using this parameter.")
 
-	# for gan
-	parser.add_argument('--train_gan', action = 'store_true', help = "Check this option if you want to train GAN instead of an Autoencoder.")
-
 	args = parser.parse_args()
 	return args
 
@@ -593,27 +590,6 @@ def autoencoder_model(X):
 	return model
 
 
-def generator(noise, reuse = None):
-	"""
-	The aim of the generator is to create a STFT spectrogram as if it would be
-	created by a feature extraction function.
-	"""
-
-	with tf.variable_scope('generator', reuse = reuse):
-		hidden1 = tf.layers.dense(inputs = noise, units = 128, activation = tf.nn.leaky_relu)
-		hidden2 = tf.layers.dense(inputs = hidden1, units = 128, activateion = tf.nn.leaky_relu)
-		output = tf.layers.dense(inputs = hidden2, units = 784, activateion = tf.nn.tanh)
-
-		return output
-
-
-def discriminator(spectrogram):
-	"""
-	The aim of the discriminator is to separate results
-	"""
-	print("Entered discriminator")
-
-
 # ---------- main ----------
 def main_script():
 	"""
@@ -638,12 +614,7 @@ def main_script():
 		ch.setFormatter(formatter)
 		logger.addHandler(ch)
 
-	# ---------- start working ----------
-	if args.train_gan:
-		print("TRAIN GAN")
-		sys.exit()
-
-
+	# ---------- start working ---------
 	if not args.trained_model:
 		logger.info("Start training")
 
