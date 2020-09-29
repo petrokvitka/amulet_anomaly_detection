@@ -23,7 +23,7 @@ To learn more about the other parameters, use the command mentioned above and re
 
 
 ### Train DCGAN model
-!!! Attention !!!
+:exclamation: Attention :exclamation:
 This model is used for comparison purposes only. It is not deployed behind the GUI.
 
 To create the corresponding conda environment, use:
