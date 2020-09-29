@@ -6,10 +6,16 @@ AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an applicati
 ### Train Autoencoder model
 The first step to train the autoencoder model, is to create and make sure to activate the conda environment for the training:
 `conda env create -f train_autoencoder.yml`
+
+Activation of the conda environment is possible with the following command:
 `conda activate train_autoencoder`
 
 The next step is to start the python script for the training of the autoencoder model. There are several required parameters, which can be displayed with the following command:
 `python train_autoencoder.py --help`
+
+To start the training an audio file or a directory with audio files is required. Provide the path to it with the parameter `--input_file` or `input_dir` correspondingly. All other parameters are optional.
+
+
 
 
 ### Test state model
