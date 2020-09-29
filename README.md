@@ -3,6 +3,15 @@
 
 AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an application that uses machine learning methods (LSTM layers in autoencoder) for detection of an anomaly based on the sound of the electric motor.
 
+### Train Autoencoder model
+The first step to train the autoencoder model, is to create and make sure to activate the conda environment for the training:
+`conda env create -f train_autoencoder.yml`
+`conda activate train_autoencoder`
+
+The next step is to start the python script for the training of the autoencoder model. There are several required parameters, which can be displayed with the following command:
+`python train_autoencoder.py --help`
+
+
 ### Test state model
 Current version was trained with the motor at 1200 rotations/min and 200 N for 200 epochs and the model can be found in the [new_test](./new_test) directory. In this directory are represented all the output files from the script in the [sound_anomaly_repository](https://github.com/petrokvitka/bearing_nn). The [anomaly threshold](./new_test/anomality_threshold), which was set based on the normal distribution of mean absolute error right after the training of the model and the [scaler](./new_test/scaler), which was used for normalization of the data before training, are needed for the prediction done in the AMULET. 
 
