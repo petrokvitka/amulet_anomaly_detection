@@ -15,6 +15,12 @@ The next step is to start the python script for the training of the autoencoder 
 
 To start the training an audio file or a directory with audio files is required. Provide the path to it with the parameter `--input_file` or `input_dir` correspondingly. All other parameters are optional.
 
+To start the prediction of the bearing state, or in another words to detect anomalies in a sound file, the parameter `--predict_file` should be used to provide the path to the test audio file. If the anomaly detection takes place not right after the training, the path to a trained model, the corresponding scaler for data preprocessing and the anomaly limit should be provided as well using parameters `--trained_model`, `--scaler`, `--anomaly_limit`.
+
+Another useful parameters that could be often used are the `--output_dir` to set the path for savind the output files, `--epochs` to specify the number of epochs for the training, `--silent` to not print the output to the terminal, but only wo the log file.
+
+To learn more about the other parameters, use the command mentioned above and read the description about possible parameters and their defaults.
+
 
 
 
