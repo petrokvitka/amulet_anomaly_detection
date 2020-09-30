@@ -4,6 +4,7 @@
 AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an application that uses machine learning methods (LSTM layers in autoencoder) for detection of an anomaly based on the sound of the electric motor.
 
 ### Train Autoencoder model
+To train the autoencoder model, the installation of [Anaconda](https://docs.anaconda.com/anaconda/install/) is required.
 The first step to train the autoencoder model, is to create and make sure to activate the conda environment for the training:
 `conda env create -f train_autoencoder.yml`
 
@@ -28,6 +29,8 @@ To learn more about the other parameters, use the command mentioned above and re
 ### Train DCGAN model
 :exclamation: Attention :exclamation:
 This model is used for comparison purposes only. It is not deployed behind the GUI.
+
+To train the DCGAN model, the installation of [Anaconda](https://docs.anaconda.com/anaconda/install/) is required.
 
 To create the corresponding conda environment, use:
 `conda env create -f dcgan.yml`
@@ -92,16 +95,17 @@ There are two ways to test the AMULET application within the Docker.
 
 
 ### 2. Installation and usage as a Desktop App
-To use AMULET as a Desktop App, please install [Anaconca](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
+To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
 `conda env create -f amulet-env.yml`
 
-Activate this environment running:
+Activate this environment with the command:
 `conda activate amulet-env`
 
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
 `python amulet_desktop.py`
 
-A new window will appear. You can browse for a wav file and check it for anomalies. Please note that clickint the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
+A new window will appear. You can browse for a wav file and check it for anomalies. 
+:exclamation: Please note that clicking the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
 
 ### 3. Installation and usage in a Browser (running on a local server)
 At last there is a possibility to use AMULET in a browser of your choice. To do so, please follow the previous instructions to install and activate the environment file. When the environment is up and running, use the next command:
