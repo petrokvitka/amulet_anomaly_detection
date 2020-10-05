@@ -1,4 +1,4 @@
-![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/static/css/amulet_logo_huge.png)
+![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/static/img/amulet_logo_huge.png)
 ## Acoustic anomaly detection in electric motor using autoencoder.
 
 AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an application that uses machine learning methods (LSTM layers in autoencoder) for detection of an anomaly based on the sound of the electric motor.
@@ -19,7 +19,7 @@ To start the training an audio file or a directory with audio files is required.
 To start the prediction of the bearing state, or in another words to detect anomalies in a sound file, the parameter `--predict_file` should be used to provide the path to the test audio file. If the anomaly detection takes place not right after the training, the path to a trained model, the corresponding scaler for data preprocessing and the anomaly limit should be provided as well using parameters `--trained_model`, `--scaler`, `--anomaly_limit`.
 
 Example of the output.
-Anstatt 3 parameter nur path zu dem trainierten Model Dir geben.
+Anstatt 3 parameter nur path zu dem trainierten Model geben.
 
 Another useful parameters that could be often used are the `--output_dir` to set the path for savind the output files, `--epochs` to specify the number of epochs for the training, `--silent` to not print the output to the terminal, but only wo the log file.
 
@@ -98,8 +98,14 @@ There are two ways to test the AMULET application within the Docker.
 To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
 `conda env create -f amulet-env.yml`
 
+Or if you are using Windows:
+`conda env create -f amulet-env-windows.yml`
+
 Activate this environment with the command:
 `conda activate amulet-env`
+
+Or if you are on Windows:
+`conda activate amulet-env-windows`
 
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
 `python amulet_desktop.py`
@@ -108,7 +114,7 @@ A new window will appear. You can browse for a wav file and check it for anomali
 :exclamation: Please note that clicking the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
 
 ### 3. Installation and usage in a Browser (running on a local server)
-At last there is a possibility to use AMULET in a browser of your choice. To do so, please follow the previous instructions to install and activate the environment file. When the environment is up and running, use the next command:
+At last there is a possibility to use AMULET in a browser of your choice. To do so, please follow the previous instructions to install and activate the Anaconda environment file. When the environment is up and running, use the next command:
 `python amulet_browser.py`
 
 To use the AMULET, visit your [localhost](http://localhost:5000). Please note that the files you want to test with AMULET should be transfered to this very directory you have cloned from Github.
