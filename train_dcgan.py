@@ -193,6 +193,12 @@ def model_inputs(real_dim, z_dim):
 
 
 def show_samples(sample_images, name, epoch):
+    """
+    Save created MFCCs as images.
+    :param sample_images: MFCCs to show
+    :param name: name for saving the MFCC
+    :param epoch: the epoch when the MFCC was generated
+    """
     figure, axes = plt.subplots(1, len(sample_images), figsize = (IMAGE_SIZE_H, IMAGE_SIZE_W))
     for index, axis in enumerate(axes):
         axis.axis('off')
@@ -207,6 +213,13 @@ def show_samples(sample_images, name, epoch):
 
 
 def test(sess, input_z, out_channel_dim, epoch):
+    """
+    Generate MFCCs for the visualization.
+    :param sess: the current state of the DCGAN model
+    :param input_z: the input stream
+    :param out_channel_dim: dimensions of the generated signal
+    :param epoch: epoch for the generating the MFCCs
+    """
     example_z = np.random.uniform(-1, 1, size=[SAMPLES_TO_SHOW, input_z.get_shape().as_list()[-1]])
     samples = sess.run(generator(input_z, out_channel_dim, False), feed_dict={input_z: example_z})
     final_output = tf.compat.v1.identity(samples, name = "predictions")
