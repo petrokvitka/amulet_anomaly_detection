@@ -229,6 +229,16 @@ def test(sess, input_z, out_channel_dim, epoch):
 
 
 def summarize_epoch(epoch, sess, d_losses, g_losses, input_z, data_shape, saver):
+    """
+    Summarize the training after an epoch.
+    :param epoch: the epoch to summarize
+    :param sess: the current state of the trained model
+    :param d_losses: loss of the Discriminator
+    :param g_losses: loss of the Generator
+    :param input_z: the input stream
+    :param data_shape: the shape of the input dataset
+    :param saver: the saver for the Checkpoints
+    """
     print("\nEpoch {}/{}".format(epoch, EPOCHS),
           "\nD Loss: {:.5f}".format(np.mean(d_losses[-MINIBATCH_SIZE:])),
           "\nG Loss: {:.5f}".format(np.mean(g_losses[-MINIBATCH_SIZE:])))
@@ -246,6 +256,11 @@ def summarize_epoch(epoch, sess, d_losses, g_losses, input_z, data_shape, saver)
 
 
 def get_batch(dataset):
+    """
+    Get a batch of data from the dataset.
+    :param dataset: the MFCCs dataset
+    :returns: normalized batch and the files
+    """
     files = random.sample(dataset, BATCH_SIZE)
     batch = []
     for file in files:
@@ -259,6 +274,12 @@ def get_batch(dataset):
 
 
 def train(data_shape, epoch, checkpoint_path):
+    """
+    The main function for the training.
+    :param data_shape: the shape of the dataset
+    :param epoch: the number of epochs for the training
+    :param checkpoint_path: the path to the saved checkpoint
+    """
     input_images, input_z, lr_G, lr_D = model_inputs(data_shape[1:], NOISE_SIZE)
     d_loss, g_loss = model_loss(input_images, input_z, data_shape[3])
     d_opt, g_opt = model_optimizers(d_loss, g_loss)
