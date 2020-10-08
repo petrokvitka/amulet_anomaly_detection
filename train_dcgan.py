@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+
+"""
+This script uses a created dataset of MFCCs to train a DCGAN.
+The training of the DCGAN is a complex process and to avoid the
+loss of information, Checkpoints are saved during the training.
+
+@author: Anastasiia Petrova
+@contact: petrokvitka@gmail.com
+
+"""
+
 import os
 import time
 import tensorflow as tf
@@ -12,7 +24,14 @@ import sys
 
 
 def generator(z, output_channel_dim, training):
-    with tf.compat.v1.variable_scope("generator", reuse= not training):
+    """
+    Create the Generator.
+    :param z: the input stream
+    :param output_channel_dim: specify the output dimensions
+    :param training: true if the training is required
+    :returns: the last layer with tanh activation
+    """
+    with tf.compat.v1.variable_scope("generator", reuse = not training):
 
         fully_connected = tf.compat.v1.layers.dense(z, 5*11*256)
         fully_connected = tf.reshape(fully_connected, (-1, 5, 11, 256))
@@ -61,6 +80,12 @@ def generator(z, output_channel_dim, training):
 
 
 def discriminator(x, reuse):
+    """
+    Create the Discriminator.
+    :param x: the input stream
+    :param reuse: true if no training is required
+    :returns: the last layer with sigmoid activation
+    """
     with tf.compat.v1.variable_scope("discriminator", reuse=reuse):
 
         # 20x44x3 -> 10x22x64
@@ -102,6 +127,13 @@ def discriminator(x, reuse):
 
 
 def model_loss(input_real, input_z, output_channel_dim):
+    """
+    Calculate the model loss.
+    :param input_real: use the real input from the dataset
+    :param input_z: input for the generator
+    :param output_channel_dim: specify the output dimensions
+    :returns: the loss of the discriminator and the loss of the generator
+    """
     g_model = generator(input_z, output_channel_dim, True)
 
     noisy_input_real = input_real + tf.random.normal(shape=tf.shape(input_real),
@@ -123,6 +155,12 @@ def model_loss(input_real, input_z, output_channel_dim):
 
 
 def model_optimizers(d_loss, g_loss):
+    """
+    Create optimizers.
+    :param d_loss: calculated discriminator loss
+    :param g_loss: calculated generator loss
+    :returns: discriminator optimizer and generator optimizer
+    """
     t_vars = tf.compat.v1.trainable_variables()
     g_vars = [var for var in t_vars if var.name.startswith("generator")]
     d_vars = [var for var in t_vars if var.name.startswith("discriminator")]
@@ -137,6 +175,12 @@ def model_optimizers(d_loss, g_loss):
 
 
 def model_inputs(real_dim, z_dim):
+    """
+    Prepare inputs for the model.
+    :param real_dim: dimensions of the real input
+    :param z_dim: dimensions of the generated input
+    :returns: inputs and the learning rates
+    """
     inputs_real = tf.compat.v1.placeholder(tf.float32, (None, *real_dim), name='inputs_real')
     #inputs_real = tf.keras.Input(name='inputs_real', shape=(None, *real_dim), dtype=tf.dtypes.float32)
     inputs_z = tf.compat.v1.placeholder(tf.float32, (None, z_dim), name="input_z")
@@ -149,6 +193,12 @@ def model_inputs(real_dim, z_dim):
 
 
 def show_samples(sample_images, name, epoch):
+    """
+    Save created MFCCs as images.
+    :param sample_images: MFCCs to show
+    :param name: name for saving the MFCC
+    :param epoch: the epoch when the MFCC was generated
+    """
     figure, axes = plt.subplots(1, len(sample_images), figsize = (IMAGE_SIZE_H, IMAGE_SIZE_W))
     for index, axis in enumerate(axes):
         axis.axis('off')
@@ -163,6 +213,13 @@ def show_samples(sample_images, name, epoch):
 
 
 def test(sess, input_z, out_channel_dim, epoch):
+    """
+    Generate MFCCs for the visualization.
+    :param sess: the current state of the DCGAN model
+    :param input_z: the input stream
+    :param out_channel_dim: dimensions of the generated signal
+    :param epoch: epoch for the generating the MFCCs
+    """
     example_z = np.random.uniform(-1, 1, size=[SAMPLES_TO_SHOW, input_z.get_shape().as_list()[-1]])
     samples = sess.run(generator(input_z, out_channel_dim, False), feed_dict={input_z: example_z})
     final_output = tf.compat.v1.identity(samples, name = "predictions")
@@ -172,6 +229,16 @@ def test(sess, input_z, out_channel_dim, epoch):
 
 
 def summarize_epoch(epoch, sess, d_losses, g_losses, input_z, data_shape, saver):
+    """
+    Summarize the training after an epoch.
+    :param epoch: the epoch to summarize
+    :param sess: the current state of the trained model
+    :param d_losses: loss of the Discriminator
+    :param g_losses: loss of the Generator
+    :param input_z: the input stream
+    :param data_shape: the shape of the input dataset
+    :param saver: the saver for the Checkpoints
+    """
     print("\nEpoch {}/{}".format(epoch, EPOCHS),
           "\nD Loss: {:.5f}".format(np.mean(d_losses[-MINIBATCH_SIZE:])),
           "\nG Loss: {:.5f}".format(np.mean(g_losses[-MINIBATCH_SIZE:])))
@@ -189,6 +256,11 @@ def summarize_epoch(epoch, sess, d_losses, g_losses, input_z, data_shape, saver)
 
 
 def get_batch(dataset):
+    """
+    Get a batch of data from the dataset.
+    :param dataset: the MFCCs dataset
+    :returns: normalized batch and the files
+    """
     files = random.sample(dataset, BATCH_SIZE)
     batch = []
     for file in files:
@@ -202,6 +274,12 @@ def get_batch(dataset):
 
 
 def train(data_shape, epoch, checkpoint_path):
+    """
+    The main function for the training.
+    :param data_shape: the shape of the dataset
+    :param epoch: the number of epochs for the training
+    :param checkpoint_path: the path to the saved checkpoint
+    """
     input_images, input_z, lr_G, lr_D = model_inputs(data_shape[1:], NOISE_SIZE)
     d_loss, g_loss = model_loss(input_images, input_z, data_shape[3])
     d_opt, g_opt = model_optimizers(d_loss, g_loss)
