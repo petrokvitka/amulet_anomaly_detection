@@ -66,7 +66,7 @@ Current version was trained with the motor at 1200 rotations/min and 200 N for 2
 
 ### 1. Installation and usage within a Docker container
 
-First you need to [clone this repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) and `cd amulet_anomaly_detection` to change inside the cloned directory. 
+First you need to [clone](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) this repository and `cd amulet_anomaly_detection` to change inside the cloned directory. 
 
 To test the AMULET, please consider to [install Docker](https://docs.docker.com/get-docker/) first.
 To start Docker, run:
