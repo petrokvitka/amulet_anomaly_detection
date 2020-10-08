@@ -21,7 +21,7 @@ To start the prediction of the bearing state, or in another words to detect anom
 Example of the output.
 Anstatt 3 parameter nur path zu dem trainierten Model geben.
 
-Another useful parameters that could be often used are the `--output_dir` to set the path for savind the output files, `--epochs` to specify the number of epochs for the training, `--silent` to not print the output to the terminal, but only wo the log file.
+Another useful parameters that could be often used are the `--output_dir` to set the path for savind the output files, `--epochs` to specify the number of epochs for the training, `--silent` to not print the output to the terminal, but only to the log file.
 
 To learn more about the other parameters, use the command mentioned above and read the description about possible parameters and their defaults.
 
@@ -111,6 +111,7 @@ Now you are ready to run the AMULET as a Desktop App. Use the command inside the
 `python amulet_desktop.py`
 
 A new window will appear. You can browse for a wav file and check it for anomalies. 
+
 :exclamation: Please note that clicking the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
 
 ### 3. Installation and usage in a Browser (running on a local server)
