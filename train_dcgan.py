@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+
+"""
+This script uses a created dataset of MFCCs to train a DCGAN.
+The training of the DCGAN is a complex process and to avoid the
+loss of information, Checkpoints are saved during the training.
+
+@author: Anastasiia Petrova
+@contact: petrokvitka@gmail.com
+
+"""
+
 import os
 import time
 import tensorflow as tf
@@ -12,7 +24,14 @@ import sys
 
 
 def generator(z, output_channel_dim, training):
-    with tf.compat.v1.variable_scope("generator", reuse= not training):
+    """
+    Create the Generator.
+    :param z: the input stream
+    :param output_channel_dim: specify the output dimensions
+    :param training: true if the training is required
+    :returns: the last layer with tanh activation
+    """
+    with tf.compat.v1.variable_scope("generator", reuse = not training):
 
         fully_connected = tf.compat.v1.layers.dense(z, 5*11*256)
         fully_connected = tf.reshape(fully_connected, (-1, 5, 11, 256))
@@ -61,6 +80,12 @@ def generator(z, output_channel_dim, training):
 
 
 def discriminator(x, reuse):
+    """
+    Create the Discriminator.
+    :param x: the input stream
+    :param reuse: true if no training is required
+    :returns: the last layer with sigmoid activation
+    """
     with tf.compat.v1.variable_scope("discriminator", reuse=reuse):
 
         # 20x44x3 -> 10x22x64
@@ -102,6 +127,13 @@ def discriminator(x, reuse):
 
 
 def model_loss(input_real, input_z, output_channel_dim):
+    """
+    Calculate the model loss.
+    :param input_real: use the real input from the dataset
+    :param input_z: input for the generator
+    :param output_channel_dim: specify the output dimensions
+    :returns: the loss of the discriminator and the loss of the generator
+    """
     g_model = generator(input_z, output_channel_dim, True)
 
     noisy_input_real = input_real + tf.random.normal(shape=tf.shape(input_real),
@@ -123,6 +155,12 @@ def model_loss(input_real, input_z, output_channel_dim):
 
 
 def model_optimizers(d_loss, g_loss):
+    """
+    Create optimizers.
+    :param d_loss: calculated discriminator loss
+    :param g_loss: calculated generator loss
+    :returns: discriminator optimizer and generator optimizer
+    """
     t_vars = tf.compat.v1.trainable_variables()
     g_vars = [var for var in t_vars if var.name.startswith("generator")]
     d_vars = [var for var in t_vars if var.name.startswith("discriminator")]
@@ -137,6 +175,12 @@ def model_optimizers(d_loss, g_loss):
 
 
 def model_inputs(real_dim, z_dim):
+    """
+    Prepare inputs for the model.
+    :param real_dim: dimensions of the real input
+    :param z_dim: dimensions of the generated input
+    :returns: inputs and the learning rates
+    """
     inputs_real = tf.compat.v1.placeholder(tf.float32, (None, *real_dim), name='inputs_real')
     #inputs_real = tf.keras.Input(name='inputs_real', shape=(None, *real_dim), dtype=tf.dtypes.float32)
     inputs_z = tf.compat.v1.placeholder(tf.float32, (None, z_dim), name="input_z")
