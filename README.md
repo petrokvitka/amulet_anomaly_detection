@@ -48,7 +48,7 @@ The structure of the resulted data set is as follows:
     - numerous MFCCs for the training
   - :page_facing_up: list of paths to the created MFCCs
   
-An example output of this script can be seen on [Kaggle](https://www.kaggle.com/petrokvitka/mfccsmotor).
+An example output of this script can be seen on [Kaggle](www.kaggle.com/dataset/f3d0029363a2a88706711d6e06bed6509f82a7f67af18c0629d026d0541e54cc).
   
 After the data set is prepared for the training, the next script can be run with the following command:
 `python train_dcgan.py --help`
