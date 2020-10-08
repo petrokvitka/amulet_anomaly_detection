@@ -48,6 +48,8 @@ The structure of the resulted data set is as follows:
     - numerous MFCCs for the training
   - :page_facing_up: list of paths to the created MFCCs
   
+An example output of this script can be seen on [Kaggle](https://www.kaggle.com/petrokvitka/mfccsmotor).
+  
 After the data set is prepared for the training, the next script can be run with the following command:
 `python train_dcgan.py --help`
 
@@ -55,9 +57,7 @@ This script expects the generated in the previous step data set for the training
 
 The DCGAN training requires longer time and needs more computational power. Good models can only be achieved after at least 700 epochs training. Each of the epoch has 5 iteration. Set the number of desired epochs with the parameter `--epochs`. The model is saved in Checkpoints during the training to be able to restore the needed state of the training for anomalies detection or for the further training.
 
-If the parameter `--detect` was chosen, the provided Checkpoint will be loaded and the trained Generator will create MFCC which represent the learned normal state of the bearing. This generater MFCC can be compared with the real one and if the differences between them are higher than the anomaly threshold, the anomaly will be announced. To calculate the anomaly threshold and compare real vs generated MFCC the helping script is used currently. 
-`python evaluate_dcgan.py`
-
+If the parameter `--detect` was chosen, the provided Checkpoint will be loaded and the trained Generator will create MFCC which represent the learned normal state of the bearing. This generater MFCC can be compared with the real one and if the differences between them are higher than the anomaly threshold, the anomaly will be announced. To calculate the anomaly threshold and compare real vs generated MFCC the helping script is used currently. This script can be called with the command `python evaluate_dcgan.py`. It not only calculates the anomaly threshold, but also creates a ROC-curve to visualize the optimal range of possible anomaly thresholds. For this purpose, the test dataset is used.
 
 ### Test state model
 Current version was trained with the motor at 1200 rotations/min and 200 N for 200 epochs and the model can be found in the [new_test](./new_test) directory. In this directory are represented all the output files from the script in the [sound_anomaly_repository](https://github.com/petrokvitka/bearing_nn). The [anomaly threshold](./new_test/anomality_threshold), which was set based on the normal distribution of mean absolute error right after the training of the model and the [scaler](./new_test/scaler), which was used for normalization of the data before training, are needed for the prediction done in the AMULET. 
