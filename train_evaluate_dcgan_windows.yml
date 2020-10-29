@@ -124,5 +124,3 @@ dependencies:
     - scikit-learn==0.22.1
     - scipy==1.4.1
     - soundfile==0.10.3.post1
-prefix: C:\Users\petro\anaconda3\envs\train_dcgan
-
