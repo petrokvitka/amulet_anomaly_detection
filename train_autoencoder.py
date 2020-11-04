@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import joblib
-import seaborn as sns
+#import seaborn as sns
 import matplotlib.pyplot as plt
 
 from numpy.random import seed
@@ -703,7 +703,7 @@ def main_script():
 		# ---------- plot the distribution of the loss mae ----------
 		fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
 		ax.set_title("Loss Distribution", fontsize = 16)
-		sns.distplot(scored_train['Loss_mae'], bins = 20, kde = True, color = 'blue');
+		plt.hist(scored_train['Loss_mae'], bins = 40, color = 'blue')
 		fig.savefig(os.path.join(args.output_dir, "Loss_distribution.png"))
 
 		# ---------- announce the threshold for this model ----------
@@ -718,6 +718,38 @@ def main_script():
 		model_name = os.path.join(args.output_dir, "sound_anomaly_detection.h5")
 		model.save(model_name)
 		logger.info("Model saved to: " + model_name)
+
+		# ---------- export to the TFLite ----------
+		print("Start working for TFLite")
+		export_dir = os.path.join(args.output_dir, "tflite")
+		#check_directory(export_dir, create = True)
+
+		#tf.saved_model.save(model, export_dir)
+
+		# Select mode of optimization
+		print("Setting optimization mode")
+		mode = "Speed"
+
+		if mode == 'Storage':
+			optimization = tf.lite.Optimize.OPTIMIZE_FOR_SIZE
+		elif mode == 'Speed':
+			optimization = tf.lite.Optimize.OPTIMIZE_FOR_LATENCY
+		else:
+			optimization = tf.lite.Optimize.DEFAULT
+
+		# Use the TFLiteConverter SavedModel API to initialize the converter
+		print("Creating converter")
+		converter = tf.lite.TFLiteConverter.from_keras_model(model)
+
+		# Set the optimizations
+		converter.optimizations = [optimization]
+
+		# Invoke the converter to finally generate the TFLite model
+		tflite_model = converter.convert()
+		tflite_model_file = os.path.join(export_dir, "model.tflite")
+		print("Save the model")
+		tflite_model_file.write_bytes(tflite_model)
+
 
 		# ---------- save the predicted wav ----------
 		#librosa.output.write_wav("pred_train.wav", np.array(X_pred_train.iloc[:, 0]), 22050)
