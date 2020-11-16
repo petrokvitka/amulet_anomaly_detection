@@ -778,8 +778,8 @@ def main_script():
 		############ Plotting loss_mae vs threshold ##############
 
 		fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
-		ax.plot(scored['Loss_mae'], color = 'blue')
-		ax.plot(scored['Threshold'], color = 'red')
+		ax.plot(scored['Loss_mae'], color = 'blue', label = 'Loss MAE')
+		ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
 		#ax.plot(np.mean(np.abs(X_pred), axis = 1), color = 'green')
 
 		labels = ax.get_xticks() #.tolist()
@@ -794,7 +794,9 @@ def main_script():
 			if index % 10 != 0:
 				label.set_visible(False)
 
+		ax.set_title("Comparing MAE with the anomaly threshold")
 		ax.set_xlabel("Time in sec")
+		ax.legend(loc = 'lower right')
 		plt.show()
 
 		scored_filename = os.path.join(args.output_dir, "anomaly_results.csv")
