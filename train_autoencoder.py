@@ -797,7 +797,7 @@ def main_script():
 		ax.set_title("Comparing MAE with the anomaly threshold")
 		ax.set_xlabel("Time in sec")
 		ax.legend(loc = 'lower right')
-		plt.show()
+		fig.savefig(os.path.join(args.output_dir, "predicted_anomaly_with_threshold.png"))
 
 		scored_filename = os.path.join(args.output_dir, "anomaly_results.csv")
 		logger.info("Saving the anomaly results to " + scored_filename)
