@@ -16,6 +16,18 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
+
+print("Imports are ready!")
+
+parser = argparse.ArgumentParser(description = "Evaluate DCGAN.")
+parser.add_argument('--train_real', help = "Path to the MFCC used for training of the DCGAN.", required = True)
+parser.add_argument('--train_generated', help = "Path to the MFCC generated after the training of the DCGAN.", required = True)
+parser.add_argument('--good_real', help = "Path to the directory with MFCCs recordings of a good bearing.", required = True)
+parser.add_argument('--bad_real', help = "Path to the directory with MFCCs recordings with unexpected stops.", required = True)
+parser.add_argument('--defect_real', help = "Path to the directory with MFCCs redordings of a defect bearing.", required = True)
+parser.add_argument('--generated_mfccs', help = "Path to the directory with generated MFCCs.", required = True)
+args = parser.parse_args()
 
 def convert_to_gray(img_path):
     """
@@ -27,8 +39,8 @@ def convert_to_gray(img_path):
     color_gray = color.rgb2gray(color_img)
     return color_gray
 
-train_real_gray = convert_to_gray("../../mfccs/img/1200_200_0.jpg")
-train_generated_gray = convert_to_gray("./dcgan_mfccs_output/samples_745_0.png")
+train_real_gray = convert_to_gray(args.train_real) #"../../mfccs/img/1200_200_0.jpg")
+train_generated_gray = convert_to_gray(args.train_generated) #"./dcgan_mfccs_output/samples_745_0.png")
 
 # check the shape of gray images
 print(train_generated_gray.shape) #(20, 44)
@@ -36,7 +48,7 @@ print(train_generated_gray.shape) #(20, 44)
 # calculate the anomaly threshold as a maximum of differences
 differences = np.abs(train_real_gray.flatten() - train_generated_gray.flatten())
 threshold = np.max(differences)
-print(threshold) #0.17
+print("The anomaly threshold is: ", threshold) #0.17
 
 def read_files(directory):
     """
@@ -52,13 +64,13 @@ def read_files(directory):
     return files
 
 # set the directories where we read the MFCCs for testing
-good_real = read_files("../../mfccs/test/good")
-bad_real = read_files("../../mfccs/test/bad")
-defect_real = read_files("../../mfccs/test/defect")
+good_real = read_files(args.good_real) #"../../mfccs/test/good")
+bad_real = read_files(args.bad_real) #"../../mfccs/test/bad")
+defect_real = read_files(args.defect_real) #"../../mfccs/test/defect")
 
-good_generated = read_files("./dcgan_mfccs_output/test/good")
-bad_generated = read_files("./dcgan_mfccs_output/test/bad")
-defect_generated = read_files("./dcgan_mfccs_output/test/defect")
+good_generated = read_files(args.generated_mfccs) #"./dcgan_mfccs_output/test/good")
+bad_generated = good_generated #read_files("./dcgan_mfccs_output/test/bad")
+defect_generated = good_generated #read_files("./dcgan_mfccs_output/test/defect")
 
 # create a range of thresholds in regard to the calculated threshold
 thresholds = [threshold - 0.1, threshold - 0.05, threshold, threshold + 0.05, threshold + 0.1, threshold + 0.15, threshold + 0.2, threshold + 0.25]
