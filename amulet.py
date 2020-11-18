@@ -18,8 +18,8 @@ import sys
 
 
 # global variables and settings
-timesteps = 10
-
+timesteps = 1
+"""
 model = load_model('./new_test/sound_anomaly_detection.h5')
 model._make_predict_function()
 print("Model loaded in AMULET.")
@@ -28,9 +28,15 @@ limit = joblib.load('./new_test/anomaly_threshold')
 print("Anomaly limit is ", str(limit))
 scaler = joblib.load('./new_test/scaler')
 print("The scaler is loaded.")
+"""
+"""
+model = './metal_powder/sound_anomaly_detection.h5'
+limit = './metal_powder/anomaly_threshold'
+scaler = './metal_powder/scaler'
 
-
-def read_wav(filename, seconds, fft_first = False):
+file_name = ('./metal_powder/201109-026.wav')
+"""
+def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = False, median = False):
 	"""
 	This function reads the wav file and cuts it in seconds (with standard sampling
 	rate of 22050), creates fft and spectrogram of each part, calculates the mean
@@ -40,6 +46,7 @@ def read_wav(filename, seconds, fft_first = False):
 	:param filename: path to the wav file
 	:param seconds: length of one part
 	:returns: pandas dataframe with three columns
+	"""
 	"""
 	print("AMULET starts reading ", filename)
 	wav, sr = librosa.load(filename)
@@ -100,6 +107,137 @@ def read_wav(filename, seconds, fft_first = False):
 		merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
 
 	return merged_data
+	"""
+	merged_data = pd.DataFrame()
+
+	if median:
+		fun_name = "median"
+	else:
+		fun_name = "mean"
+
+	if wavelet:
+		wav, sr = librosa.load(filename, sr = 1378)
+		#for not continuous wavelet use this list_coeff = pywt.wavedec(signal, wavelet = 'sym5')
+		scales = np.arange(1, 50)
+
+		coeffs, freqs = pywt.cwt(wav, scales, wavelet = 'morl')
+
+		# now fill the dataframe with the wavelet information
+		step = int(sr*seconds)
+		i = 0
+
+		while i <= len(wav) - step:
+			my_row = []
+			for j in range(len(coeffs)):
+				my_row.append(my_statistical_function(coeffs[j][i : i + step], fun_name))
+			one_row = pd.DataFrame([my_row])
+
+			#new_wav = wav[i : i + step]
+			#coeffs, freqs = pywt.cwt(new_wav, scales, wavelet = "morl")
+			#plot_wavelet(coeffs, sr)
+			#one_row = pd.DataFrame([[my_statistical_function(x, fun_name) for x in coeffs]])
+
+			row_name = str(i / sr) + "-" + str((i + step)/sr)
+			one_row.index = [row_name]
+
+			merged_data = merged_data.append(one_row)
+
+			i += step
+
+		merged_data.columns = [scales]
+
+	else:
+		wav, sr = librosa.load(filename)
+
+		if fft_last:
+
+			step = int(sr*seconds)
+			i = 0
+
+			#for comparison plot
+			wavs = []
+			ffts = []
+			ss = []
+			mel_ss = []
+			mfccs = []
+
+			while i <= len(wav) - step:
+				new_wav = wav[i : i + step]
+
+				if hamming:
+					w = np.hamming(len(new_wav))
+					fft = np.abs(np.fft.fft(new_wav * w).real)
+				else:
+					fft = np.abs(np.fft.fft(new_wav).real)
+
+				s = np.abs(librosa.stft(new_wav))
+				mel_s = librosa.feature.melspectrogram(new_wav)
+				mfcc = librosa.feature.mfcc(new_wav, dct_type = 3)
+
+				#for comparison plot
+				wavs.append(new_wav)
+				ffts.append(fft)
+				ss.append(s)
+				mel_ss.append(mel_s)
+				mfccs.append(mfcc)
+
+				one_row = pd.DataFrame([[my_statistical_function(new_wav, fun_name), my_statistical_function(fft, fun_name), my_statistical_function(s, fun_name), my_statistical_function(mel_s, fun_name), my_statistical_function(mfcc, fun_name)]])
+				row_name = str(i / sr) + "-" + str((i + step)/sr)
+				one_row.index = [row_name]
+
+				merged_data = merged_data.append(one_row)
+
+				i += step
+
+			merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
+
+			#compare(wavs[0], ffts[0], ss[0], mel_ss[0], mfccs[0], wavs[1], ffts[1], ss[1], mel_ss[1], mfccs[1])
+
+		else:
+
+			n_fft = 2048
+			hop_length = int(n_fft/4)
+			real_time_hop = hop_length/sr
+
+			s = np.abs(librosa.stft(wav, n_fft = n_fft, hop_length = hop_length)) #returns shape (1+n_fft/2, frames)
+			mel_s = np.abs(librosa.feature.melspectrogram(wav))
+			mfcc = np.abs(librosa.feature.mfcc(wav, dct_type = 3))
+
+			spectrogram_length = s.shape[1]
+
+			rows = floor(len(wav)/(sr*seconds))
+			step = floor(spectrogram_length/rows)
+			#print(rows, step)
+
+			i = 0
+			sec = 0
+
+			while i <= spectrogram_length - step - 1:
+				one_row = pd.DataFrame([[my_statistical_function(s[:, i + step], fun_name), my_statistical_function(mel_s[:, i + step], fun_name), my_statistical_function(mfcc[:, i + step], fun_name)]])
+				row_name = str(i * real_time_hop) + "-" + str((i + step)*real_time_hop)
+				one_row.index = [row_name]
+
+				merged_data = merged_data.append(one_row)
+
+				i += step
+				sec += seconds
+
+			merged_data.columns = ["spectrogram", "mel", "mfcc"]
+
+
+	return merged_data, sr
+
+def my_statistical_function(a, fun_name):
+	"""
+	This function calculates median or mean (possible also other functions if needed in the future).
+	:param a: array of numbers to which the function should be applied
+	:param fun_name: name of the function to apply
+	:returns: calculated mean or median of the array
+	"""
+	if fun_name == "median":
+		return np.median(a)
+	elif fun_name == "mean":
+		return np.mean(a)
 
 
 def prepare_reshape(X, timesteps):
@@ -126,17 +264,30 @@ def prepare_reshape(X, timesteps):
 	return X
 
 
-def detect_anomalies(file_name):
+def detect_anomalies(file_name, model_path, limit_path, scaler_path):
 	"""
 	This function prepares the signal from wav file for the model and calculates
 	the MAE to detect anomalies.
 	:param file_name: name of wav file to read and process
 	:returns: dictionary in suitable for JSONify format with found anomalies
 	"""
+
+	# First, load the model, scaler and anomaly threshold
+	model = load_model(model_path)
+	model._make_predict_function()
+	print("Model loaded in AMULET.")
+
+	limit = joblib.load(limit_path)
+	print("Anomaly limit is ", str(limit))
+	scaler = joblib.load(scaler_path)
+	print("The scaler is loaded.")
+
+
 	print("AMULET starts detecting anomalies.")
+
 	data_out = {}
 
-	df = read_wav(file_name, 0.1)
+	df, sr = read_wav(file_name, 0.1)
 
 	#normalize the data
 	X = scaler.transform(df)
@@ -175,3 +326,5 @@ def detect_anomalies(file_name):
 		data_out["Analysis"].append(result)
 
 	return data_out
+
+#data_out = detect_anomalies(file_name, model, limit, scaler)

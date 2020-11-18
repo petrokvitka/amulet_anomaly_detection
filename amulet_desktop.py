@@ -10,6 +10,7 @@ This is a Tkinter desktop app for AMULET.
 import tkinter as tk
 from tkinter import filedialog, PhotoImage, messagebox
 import os
+import argparse
 
 from PIL import Image, ImageTk
 
@@ -18,6 +19,13 @@ from amulet import detect_anomalies
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
 
+parser = argparse.ArgumentParser(description="AMULET desktop")
+parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.", default = "./new_test")
+args = parser.parse_args()
+
+model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
+limit_path = os.path.join(args.model_directory, 'anomaly_threshold')
+scaler_path = os.path.join(args.model_directory, 'scaler')
 
 def predict_file():
     """
@@ -31,7 +39,7 @@ def predict_file():
 
     else:
         # ---------- check for anomalies ----------
-        data_out = detect_anomalies(FILENAME)
+        data_out = detect_anomalies(FILENAME, model_path, limit_path, scaler_path)
 
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
 
