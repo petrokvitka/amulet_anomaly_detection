@@ -780,7 +780,6 @@ def main_script():
 		fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
 		ax.plot(scored['Loss_mae'], color = 'blue', label = 'Loss MAE')
 		ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
-		#ax.plot(np.mean(np.abs(X_pred), axis = 1), color = 'green')
 
 		labels = ax.get_xticks() #.tolist()
 
