@@ -20,7 +20,7 @@ WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
 
 parser = argparse.ArgumentParser(description="AMULET desktop")
-parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.", default = "./new_test")
+parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.", default = "./example_model")
 args = parser.parse_args()
 
 model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
