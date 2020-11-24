@@ -7,3 +7,19 @@
 2020-11-24 15:06 : Saving the model...
 2020-11-24 15:06 : Model saved to: example_model/sound_anomaly_detection.h5
 2020-11-24 15:06 : This script needed 45.99 seconds to generate the output.
+2020-11-24 15:20 : Start training
+2020-11-24 15:20 : Saving the merged data example_model/training_data.csv
+2020-11-24 15:20 : Saving the scaler example_model/scaler
+2020-11-24 15:20 : Data shape: (119, 1, 3)
+2020-11-24 15:20 : The loss mae threshold for anomaly is 0.4226
+2020-11-24 15:20 : Saving the threshold to the file example_model/anomaly_threshold
+2020-11-24 15:20 : Saving the model...
+2020-11-24 15:20 : Model saved to: example_model/sound_anomaly_detection.h5
+2020-11-24 15:20 : Predict the anomaly for provided file: ../../Music/metal_powder/powder7/201110-034.wav
+2020-11-24 15:20 : Saving the data for prediction example_model/data_for_prediction.csv
+2020-11-24 15:20 : Data shape: (115, 1, 3)
+2020-11-24 15:20 : Predicting data shape: (115, 1, 3)
+2020-11-24 15:20 : Saving predicted data to example_model/predicted_data.csv
+2020-11-24 15:20 : defect
+2020-11-24 15:20 : Saving the anomaly results to example_model/anomaly_results.csv
+2020-11-24 15:20 : This script needed 46.55 seconds to generate the output.
