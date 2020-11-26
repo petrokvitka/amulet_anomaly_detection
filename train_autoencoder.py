@@ -238,7 +238,7 @@ def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 	timepoints.
 	:param filename: path to the wav file
 	:param seconds: length of one part
-	:returns: pandas dataframe with three columns
+	:returns: pandas dataframe with three columns and the sampling rate (needed for plotting the prediction)
 	"""
 
 	merged_data = pd.DataFrame()
@@ -340,7 +340,7 @@ def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 
 			rows = floor(len(wav)/(sr*seconds))
 			step = floor(spectrogram_length/rows)
-			print(rows, step)
+			#print(rows, step)
 
 			i = 0
 			sec = 0
@@ -358,7 +358,7 @@ def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 			merged_data.columns = ["spectrogram", "mel", "mfcc"]
 
 
-	return merged_data
+	return merged_data, sr
 
 
 def my_statistical_function(a, fun_name):
@@ -622,11 +622,11 @@ def main_script():
 		if args.input_dir:
 			for f in os.listdir(args.input_dir):
 				if f.endswith(".wav"):
-					merged_data = read_wav(os.path.join(args.input_dir, f), args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
+					merged_data, _ = read_wav(os.path.join(args.input_dir, f), args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
 				else:
 					continue
 		else: #otherwise we read from a long wav file
-			merged_data = read_wav(args.input_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
+			merged_data, _ = read_wav(args.input_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
 
 		print("Merged data shape:", merged_data.shape)
 		merged_data_filename = os.path.join(args.output_dir, "training_data.csv")
@@ -737,7 +737,7 @@ def main_script():
 	if args.predict_file:
 		logger.info("Predict the anomaly for provided file: " + args.predict_file)
 
-		test_data = read_wav(args.predict_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
+		test_data, sr = read_wav(args.predict_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
 
 		print("Predict data shape:", test_data.shape)
 
@@ -758,7 +758,6 @@ def main_script():
 		X_pred = pd.DataFrame(X_pred, columns = test_data.columns)
 		X_pred.index = test_data.index[:X_pred.shape[0]]
 
-		############ ROC ##############
 		X_pred_filename = os.path.join(args.output_dir, "predicted_data.csv")
 		logger.info("Saving predicted data to " + X_pred_filename)
 		X_pred.to_csv(X_pred_filename)
@@ -771,15 +770,32 @@ def main_script():
 
 		if True in scored['Anomaly'].unique():
 			joblib.dump("defect", os.path.join(args.output_dir, "result"))
-			print("defect")
+			logger.info("defect")
 		else:
 			joblib.dump("good", os.path.join(args.output_dir, "result"))
-			print("good")
+			logger.info("good")
 
-		############ ROC ##############
-		fig, ax = plt.subplots()
-		ax.plot(scored['Loss_mae'], color = 'blue')
-		ax.plot(scored['Threshold'], color = 'red')
+		############ Plotting loss_mae vs threshold ##############
+
+		fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
+		ax.plot(scored['Loss_mae'], color = 'blue', label = 'Loss MAE')
+		ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
+
+		labels = ax.get_xticks() #.tolist()
+
+		#get the index values from the dataset and cut to get the second and 2 values after comma
+		new_labels = [x.split("-")[0][:-13] for x in scored.index.values]
+		new_labels[0] = 0.0
+
+		ax.set_xticklabels(new_labels)
+
+		for index, label in enumerate(ax.get_xticklabels()):
+			if index % 10 != 0:
+				label.set_visible(False)
+
+		ax.set_title("Comparing MAE with the anomaly threshold")
+		ax.set_xlabel("Time in sec")
+		ax.legend(loc = 'lower right')
 		fig.savefig(os.path.join(args.output_dir, "predicted_anomaly_with_threshold.png"))
 
 		scored_filename = os.path.join(args.output_dir, "anomaly_results.csv")
