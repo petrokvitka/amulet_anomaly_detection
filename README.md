@@ -3,7 +3,7 @@
 
 AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an application that uses machine learning methods (LSTM layers in autoencoder) for detection of an anomaly based on the sound of the electric motor.
 
-:exclamation: The DCGAN training and evaluation, as well as AMULET deployment within Docker container and in a web-browser were moved to the branche old_master to avoid confusion :exclamation:
+:exclamation: The DCGAN training and evaluation, as well as AMULET deployment within Docker container and in a web-browser were moved to the branche old_master to avoid confusion. Change to the old_master branche using the command `git checkout old_master` :exclamation:
 
 ### Train Autoencoder model
 To train the autoencoder model, the installation of [Anaconda](https://docs.anaconda.com/anaconda/install/) is required.
