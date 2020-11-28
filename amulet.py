@@ -182,7 +182,7 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 				mfccs.append(mfcc)
 
 				one_row = pd.DataFrame([[my_statistical_function(new_wav, fun_name), my_statistical_function(fft, fun_name), my_statistical_function(s, fun_name), my_statistical_function(mel_s, fun_name), my_statistical_function(mfcc, fun_name)]])
-				row_name = str(i / sr) + "-" + str((i + step)/sr)
+				row_name = str(round(i / sr, 1)) + "-" + str(round((i + step)/sr, 1))
 				one_row.index = [row_name]
 
 				merged_data = merged_data.append(one_row)
@@ -214,7 +214,7 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 
 			while i <= spectrogram_length - step - 1:
 				one_row = pd.DataFrame([[my_statistical_function(s[:, i + step], fun_name), my_statistical_function(mel_s[:, i + step], fun_name), my_statistical_function(mfcc[:, i + step], fun_name)]])
-				row_name = str(i * real_time_hop) + "-" + str((i + step)*real_time_hop)
+				row_name = str(round(i * real_time_hop, 1)) + "-" + str(round((i + step)*real_time_hop, 1))
 				one_row.index = [row_name]
 
 				merged_data = merged_data.append(one_row)
