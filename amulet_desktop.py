@@ -27,6 +27,15 @@ model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
 limit_path = os.path.join(args.model_directory, 'anomaly_threshold')
 scaler_path = os.path.join(args.model_directory, 'scaler')
 
+def select_model():
+    """
+    """
+    dname = filedialog.askdirectory(initialdir = "./", title = "Select Directory with trained model")
+    print("You have chosen this directory: ", dname)
+    dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
+    rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+    canvas.tag_lower(rect, dname_label)
+
 def predict_file():
     """
     This function calls the AMULET to detect anomalies and finally shows
@@ -90,9 +99,9 @@ def browse_file():
     canvas.delete("result_table")
     canvas.delete("no_anomalies")
 
-    fname_label = canvas.create_text(270, 300, text = os.path.basename(fname), tag = "shown_fname")
+    fname_label = canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
     #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
-    rect = canvas.create_rectangle(0, 310, 550, 290, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
+    rect = canvas.create_rectangle(0, 350, 550, 290, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
     canvas.tag_lower(rect, fname_label)
 
 
@@ -104,6 +113,9 @@ def clear_canvas():
     global FILENAME
     FILENAME = ""
 
+    canvas.delete("shown
+    _modeldir")
+    canvas.delete("rect2")
     canvas.delete("shown_fname")
     canvas.delete("rect")
     canvas.delete("columns")
@@ -126,14 +138,18 @@ background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_h
 canvas.background = background_image #keep a reference in case this code is put in a function
 bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
+# ---------- browse model directory button ----------
+model_button = tk.Button(master = root, text = "Choose a directory with the trained model", command = select_model)
+model_button_window = canvas.create_window(120, 240, anchor = tk.NW, window = model_button)
+
 # ---------- browse file button ----------
 bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file)
-bro_button_window = canvas.create_window(200, 260, anchor = tk.NW, window = bro_button) #xpos, ypos
+bro_button_window = canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
 
 # ---------- predict anomalies button ----------
 predict_image = ImageTk.PhotoImage(Image.open("static/img/submit_button.png").resize((250, 30), Image.ANTIALIAS))
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
-predict_button_window = canvas.create_window(145, 320, anchor = tk.NW, window = predict_button)
+predict_button_window = canvas.create_window(145, 360, anchor = tk.NW, window = predict_button)
 
 # ----------- clear button ----------
 reset_image = ImageTk.PhotoImage(Image.open("static/img/reset_white.png").resize((100, 70), Image.ANTIALIAS))
