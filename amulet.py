@@ -19,23 +19,7 @@ import sys
 
 # global variables and settings
 timesteps = 1
-"""
-model = load_model('./new_test/sound_anomaly_detection.h5')
-model._make_predict_function()
-print("Model loaded in AMULET.")
 
-limit = joblib.load('./new_test/anomaly_threshold')
-print("Anomaly limit is ", str(limit))
-scaler = joblib.load('./new_test/scaler')
-print("The scaler is loaded.")
-"""
-"""
-model = './metal_powder/sound_anomaly_detection.h5'
-limit = './metal_powder/anomaly_threshold'
-scaler = './metal_powder/scaler'
-
-file_name = ('./metal_powder/201109-026.wav')
-"""
 def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = False, median = False):
 	"""
 	This function reads the wav file and cuts it in seconds (with standard sampling
@@ -47,67 +31,7 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 	:param seconds: length of one part
 	:returns: pandas dataframe with three columns
 	"""
-	"""
-	print("AMULET starts reading ", filename)
-	wav, sr = librosa.load(filename)
 
-	merged_data = pd.DataFrame()
-
-	if fft_first:
-
-		n_fft = 2048
-		hop_length = int(n_fft/4)
-		real_time_hop = hop_length/sr
-
-		s = np.abs(librosa.stft(wav, n_fft = n_fft, hop_length = hop_length)) #returns shape (1+n_fft/2, frames)
-		mel_s = np.abs(librosa.feature.melspectrogram(wav))
-		mfcc = np.abs(librosa.feature.mfcc(wav, dct_type = 3))
-
-		spectrogram_length = s.shape[1]
-
-		rows = floor(len(wav)/(sr*seconds))
-		step = floor(spectrogram_length/rows)
-		print(rows, step)
-
-		i = 0
-		sec = 0
-
-		while i <= spectrogram_length - step - 1:
-			one_row = pd.DataFrame([[s[:, i + step].mean(), mel_s[:, i + step].mean(), mfcc[:, i + step].mean()]])
-			row_name = str(i * real_time_hop) + "-" + str((i + step)*real_time_hop)
-			one_row.index = [row_name]
-
-			merged_data = merged_data.append(one_row)
-
-			i += step
-			sec += seconds
-
-		merged_data.columns = ["spectrogram", "mel", "mfcc"]
-
-	else:
-
-		step = int(sr*seconds)
-		i = 0
-
-		while i <= len(wav) - step:
-			new_wav = wav[i : i + step]
-			fft = np.abs(np.fft.fft(new_wav).real)
-			s = np.abs(librosa.stft(new_wav))
-			mel_s = librosa.feature.melspectrogram(new_wav)
-			mfcc = librosa.feature.mfcc(new_wav, dct_type = 3)
-
-			one_row = pd.DataFrame([[new_wav.mean(), fft.mean(), s.mean(), mel_s.mean(), mfcc.mean()]])
-			row_name = str(i / sr) + "-" + str((i + step)/sr)
-			one_row.index = [row_name]
-
-			merged_data = merged_data.append(one_row)
-
-			i += step
-
-		merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
-
-	return merged_data
-	"""
 	merged_data = pd.DataFrame()
 
 	if median:
