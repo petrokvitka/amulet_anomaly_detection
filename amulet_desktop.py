@@ -53,11 +53,16 @@ def predict_file():
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
 
             root.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-            canvas.create_image(120, 440, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
+            canvas.create_image(120, 400, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
 
         else:
+            root.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
+            canvas.create_image(120, 400, anchor = tk.NW, image = root.anomalies_image, tag = "anomalies")
 
+            """
             column_names = canvas.create_text(260, 440, text = "Anomaly  Value  Seconds", tag = "columns")
+
+            # ---------- create scrollbar table ----------
 
             table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
 
@@ -81,8 +86,7 @@ def predict_file():
             table.grid_rowconfigure(row + 1, weight = 1)
 
             canvas.create_window(180, 450, anchor = tk.NW, window = table, tag = "result_table")
-
-
+            """
 def browse_file():
     """
     This function helps a user to chose a wav file from the computer.
@@ -151,9 +155,9 @@ predict_button = tk.Button(master = root, text = "", image = predict_image, comm
 predict_button_window = canvas.create_window(145, 360, anchor = tk.NW, window = predict_button)
 
 # ----------- clear button ----------
-reset_image = ImageTk.PhotoImage(Image.open("static/img/reset_white.png").resize((100, 70), Image.ANTIALIAS))
+reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
 clear_button = tk.Button(master = root, text = "", image = reset_image, command=clear_canvas)
-clear_button_window = canvas.create_window(450, 930, anchor = tk.NW, window = clear_button)
+clear_button_window = canvas.create_window(235, 930, anchor = tk.NW, window = clear_button)
 
 # ---------- run tkinter desktop app ----------
 tk.mainloop()
