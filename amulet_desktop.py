@@ -18,20 +18,22 @@ from amulet import detect_anomalies
 
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
+MODELNAME = "./example_model"
 
 parser = argparse.ArgumentParser(description="AMULET desktop")
-parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.", default = "./example_model")
+parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.")
 args = parser.parse_args()
-
-model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
-limit_path = os.path.join(args.model_directory, 'anomaly_threshold')
-scaler_path = os.path.join(args.model_directory, 'scaler')
 
 def select_model():
     """
     """
-    dname = filedialog.askdirectory(initialdir = "./", title = "Select Directory with trained model")
-    print("You have chosen this directory: ", dname)
+    dname = filedialog.askdirectory(initialdir = "./", title = "Select Directory with a trained model")
+
+    global MODELNAME
+    MODELNAME = dname
+
+    print("You have chosen this directory with a trained model: ", dname)
+
     dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
     rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
     canvas.tag_lower(rect, dname_label)
@@ -48,6 +50,15 @@ def predict_file():
 
     else:
         # ---------- check for anomalies ----------
+        if args.model_directory:
+            model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
+            limit_path = os.path.join(args.model_directory, 'anomaly_threshold')
+            scaler_path = os.path.join(args.model_directory, 'scaler')
+        else:
+            model_path = os.path.join(MODELNAME, 'sound_anomaly_detection.h5')
+            limit_path = os.path.join(MODELNAME, 'anomaly_threshold')
+            scaler_path = os.path.join(MODELNAME, 'scaler')
+
         data_out = detect_anomalies(FILENAME, model_path, limit_path, scaler_path)
 
         if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
@@ -117,13 +128,18 @@ def clear_canvas():
     global FILENAME
     FILENAME = ""
 
+    args.model_directory = ""
+    global MODELNAME
+    MODELNAME = "./example_model"
+
     canvas.delete("shown_modeldir")
     canvas.delete("rect2")
     canvas.delete("shown_fname")
     canvas.delete("rect")
-    canvas.delete("columns")
-    canvas.delete("result_table")
+    #canvas.delete("columns")
+    #canvas.delete("result_table")
     canvas.delete("no_anomalies")
+    canvas.delete("anomalies")
 
     print("Canvas is reseted!")
 

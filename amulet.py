@@ -199,7 +199,7 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path):
 	# First, load the model, scaler and anomaly threshold
 	model = load_model(model_path)
 	model._make_predict_function()
-	print("Model loaded in AMULET.")
+	print("Model is loaded in AMULET from ", str(model_path))
 
 	limit = joblib.load(limit_path)
 	print("Anomaly limit is ", str(limit))
