@@ -26,6 +26,7 @@ args = parser.parse_args()
 
 def select_model():
     """
+    This function gives a possibility to chose a directory with a trained model.
     """
     dname = filedialog.askdirectory(initialdir = "./", title = "Select Directory with a trained model")
 
@@ -34,14 +35,16 @@ def select_model():
 
     print("You have chosen this directory with a trained model: ", dname)
 
+    canvas.delete("default_modeldir")
+
     dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
-    rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+    rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
     canvas.tag_lower(rect, dname_label)
 
 def predict_file():
     """
     This function calls the AMULET to detect anomalies and finally shows
-    that no anomalies were detected or a table with detected anomalies.
+    that no anomalies were detected or that some anomalies were detected.
     """
     # ---------- check if there is a file chosen ----------
     if FILENAME == "":
@@ -124,6 +127,8 @@ def clear_canvas():
     """
     This function awakes after clicking on the "Reset" button and clears
     everything for the next run of AMULET.
+    Note that this function also resets the directory of the trained model
+    to the default directory ./example_model.
     """
     global FILENAME
     FILENAME = ""
@@ -143,6 +148,10 @@ def clear_canvas():
 
     print("Canvas is reseted!")
 
+    dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
+    rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+    canvas.tag_lower(rect, dname_label)
+
 
 # ---------- basic settings ----------
 root = tk.Tk()
@@ -160,6 +169,10 @@ bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 # ---------- browse model directory button ----------
 model_button = tk.Button(master = root, text = "Choose a directory with the trained model", command = select_model)
 model_button_window = canvas.create_window(120, 240, anchor = tk.NW, window = model_button)
+
+dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
+rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+canvas.tag_lower(rect, dname_label)
 
 # ---------- browse file button ----------
 bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file)

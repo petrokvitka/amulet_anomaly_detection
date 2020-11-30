@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This is the main code for AMULET.
+This is the main code for AMULET anomaly detection.
 
 @author: Anastasiia Petrova
 @contact: petrokvitka@gmail.com
