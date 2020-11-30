@@ -161,11 +161,11 @@ def predict_file():
         if result == "good":
 
             root.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-            canvas.create_image(120, 460, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
+            canvas.create_image(130, 500, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
 
         else:
             root.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
-            canvas.create_image(120, 460, anchor = tk.NW, image = root.anomalies_image, tag = "anomalies")
+            canvas.create_image(130, 500, anchor = tk.NW, image = root.anomalies_image, tag = "anomalies")
 
 def clear_canvas():
     """
@@ -267,9 +267,9 @@ canvas.tag_lower(rect, oname_label)
 
 
 # ---------- predict anomalies button ----------
-predict_image = ImageTk.PhotoImage(Image.open("static/img/submit_button.png").resize((250, 30), Image.ANTIALIAS))
+predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 70), Image.ANTIALIAS))
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
-predict_button_window = canvas.create_window(145, 420, anchor = tk.NW, window = predict_button)
+predict_button_window = canvas.create_window(200, 420, anchor = tk.NW, window = predict_button)
 
 
 # ----------- reset button ----------
