@@ -15,7 +15,7 @@ import sys
 
 from PIL import Image, ImageTk
 
-from amulet import detect_anomalies, check_directory
+from amulet import detect_anomalies
 
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
@@ -27,16 +27,28 @@ parser.add_argument('--model_directory', help = "Path to the directory where the
 parser.add_argument('--output_directory', help = "Set a path to the output directory.")
 args = parser.parse_args()
 
-if args.model_directory:
-    # check if the provided directory exists
-    check_directory(args.model_directory, create = False)
-    # check if there is a trained model, anomaly threshold and a scaler in the provided directory
-    if not (os.path.exists(os.path.join(args.model_directory, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(args.model_directory, 'anomaly_threshold')) and os.path.exists(os.path.join(args.model_directory, 'scaler'))):
-        print("The provided directory ", args.model_directory, " does not contain a trained model and anomaly threshold and a corresponding scaler. The exit is forced!")
-        sys.exit()
-
-if args.output_directory:
-    check_directory(args.output_directory, create = True)
+def check_directory(directory, create = False):
+    """
+    This function checks if the directory exists, and if so, if the object on the provided
+    path is a directory. If the directory we are checking is an output directory and does not exist, a new directory will be created.
+    :param directory: path to the object we want to check
+    :param create: set to True, if the provided object is an output directory
+    """
+    if not os.path.exists(directory):
+        if create:
+            os.makedirs(directory)
+            print('A new directory ' + directory + ' was created.')
+            return True
+        else:
+            print('The provided directory ' + directory + ' does not exist, the exit is forced.')
+            messagebox.showinfo("Error!", "The provided directory '{}' does not exist.".format(directory))
+            return False
+    else: #check if provided path calls a directory
+        if not os.path.isdir(directory):
+            print('Please make sure that the ' + directory + ' is a directory!')
+            messagebox.showinfo("Error!", "Make sure that '{}' is a directory!".format(directory))
+            return False
+    return True
 
 def select_model():
     """
@@ -44,22 +56,23 @@ def select_model():
     """
     dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with a trained model")
 
-    global MODELNAME
-    MODELNAME = dname
+    if dname:
 
-    print("You have chosen this directory with a trained model: ", dname)
-    check_directory(dname, create = False)
-    if not (os.path.exists(os.path.join(dname, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(dname, 'anomaly_threshold')) and os.path.exists(os.path.join(dname, 'scaler'))):
-        print("The provided directory ", dname, " does not contain a trained model and anomaly threshold and a corresponding scaler.")
-        messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
-        #clear_canvas()
-    else:
+        global MODELNAME
+        MODELNAME = dname
 
-        canvas.delete("default_modeldir")
+        print("You have chosen this directory with a trained model: ", dname)
+        if check_directory(dname, create = False):
+            if not (os.path.exists(os.path.join(dname, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(dname, 'anomaly_threshold')) and os.path.exists(os.path.join(dname, 'scaler'))):
+                print("The provided directory ", dname, " does not contain a trained model and anomaly threshold and a corresponding scaler.")
+                messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
+            else:
 
-        dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
-        rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
-        canvas.tag_lower(rect, dname_label)
+                canvas.delete("default_modeldir")
+
+                dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
+                rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
+                canvas.tag_lower(rect, dname_label)
 
 def choose_output_dir():
     """
@@ -68,28 +81,54 @@ def choose_output_dir():
     """
     oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
 
-    global OUTPUTNAME
-    OUTPUTNAME = oname
+    if oname:
 
-    print("You have set the output directory: ", oname)
-    check_directory(oname, create = True)
+        global OUTPUTNAME
+        OUTPUTNAME = oname
 
-    canvas.delete("default_output")
+        print("You have set the output directory: ", oname)
+        if check_directory(oname, create = True):
 
-    oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "shown_output")
-    rect = canvas.create_rectangle(0, 410, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
-    canvas.tag_lower(rect, oname_label)
+            canvas.delete("default_output")
+
+            oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "shown_output")
+            rect = canvas.create_rectangle(0, 410, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+            canvas.tag_lower(rect, oname_label)
+
+def browse_file():
+    """
+    This function helps a user to chose a wav file from the computer.
+    The name of the chosen file will show up under the button.
+    """
+    fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
+
+    if fname:
+        global FILENAME
+        FILENAME = fname
+
+        print("You have chosen this file: ", fname)
+
+        canvas.delete("columns")
+        canvas.delete("result_table")
+        canvas.delete("no_anomalies")
+
+        fname_label = canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
+        #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
+        rect = canvas.create_rectangle(0, 350, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
+        canvas.tag_lower(rect, fname_label)
+
+    else:
+        print("There was no file provided!")
+        messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
 def predict_file():
     """
     This function calls the AMULET to detect anomalies and finally shows
     that no anomalies were detected or that some anomalies were detected.
     """
-    # ---------- check if there is a file chosen ----------
     if FILENAME == "":
         print("There was no file provided!")
         messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
-
     else:
         # ---------- check for anomalies ----------
         if args.model_directory:
@@ -146,28 +185,6 @@ def predict_file():
             canvas.create_window(180, 450, anchor = tk.NW, window = table, tag = "result_table")
             """
 
-def browse_file():
-    """
-    This function helps a user to chose a wav file from the computer.
-    The name of the chosen file will show up under the button.
-    """
-    fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
-
-    global FILENAME
-    FILENAME = fname
-
-    print("You have chosen this file: ", fname)
-
-    canvas.delete("columns")
-    canvas.delete("result_table")
-    canvas.delete("no_anomalies")
-
-    fname_label = canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
-    #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
-    rect = canvas.create_rectangle(0, 350, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
-    canvas.tag_lower(rect, fname_label)
-
-
 def clear_canvas():
     """
     This function awakes after clicking on the "Reset" button and clears
@@ -208,6 +225,19 @@ def clear_canvas():
     canvas.tag_lower(rect, oname_label)
 
     print("Canvas is reseted!")
+
+
+# ---------- check input and output directories ----------
+if args.model_directory:
+    # check if the provided directory exists
+    if check_directory(args.model_directory, create = False):
+        # check if there is a trained model, anomaly threshold and a scaler in the provided directory
+        if not (os.path.exists(os.path.join(args.model_directory, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(args.model_directory, 'anomaly_threshold')) and os.path.exists(os.path.join(args.model_directory, 'scaler'))):
+            print("The provided directory ", args.model_directory, " does not contain a trained model and anomaly threshold and a corresponding scaler. The exit is forced!")
+            sys.exit()
+
+if args.output_directory:
+    check_directory(args.output_directory, create = True)
 
 
 # ---------- basic settings ----------
