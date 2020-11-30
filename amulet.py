@@ -15,10 +15,29 @@ import joblib
 import librosa
 from math import floor
 import sys
+import os
 
 
 # global variables and settings
 timesteps = 1
+
+def check_directory(directory, create = False):
+	"""
+	This function checks if the directory exists, and if so, if the object on the provided path is a directory. If the directory we are checking is an output directory and does not exist, a new directory will be created.
+	:param directory: path to the object we want to check
+	:param create: set to True, if the provided object is an output directory
+	"""
+	if not os.path.exists(directory):
+		if create:
+			os.makedirs(directory)
+			print('A new directory ' + directory + ' was created.')
+		else:
+			print('The provided directory ' + directory + ' does not exist, the exit is forced.')
+			sys.exit()
+	else: #check if provided path calls a directory
+		if not os.path.isdir(directory):
+			print('Please make sure that the ' + directory + ' is a directory!')
+			sys.exit()
 
 def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = False, median = False):
 	"""
