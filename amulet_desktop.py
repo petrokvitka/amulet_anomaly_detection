@@ -71,7 +71,7 @@ def select_model():
                 canvas.delete("default_modeldir")
 
                 dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
-                rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
+                rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
                 canvas.tag_lower(rect, dname_label)
 
 def choose_output_dir():
@@ -92,7 +92,7 @@ def choose_output_dir():
             canvas.delete("default_output")
 
             oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "shown_output")
-            rect = canvas.create_rectangle(0, 410, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+            rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
             canvas.tag_lower(rect, oname_label)
 
 def browse_file():
@@ -100,21 +100,29 @@ def browse_file():
     This function helps a user to chose a wav file from the computer.
     The name of the chosen file will show up under the button.
     """
+    global FILENAME
+    FILENAME = ""
+    canvas.delete("shown_fname")
+    canvas.delete("rect")
+    canvas.delete("columns")
+    canvas.delete("result_table")
+    canvas.delete("no_anomalies")
+
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
     if fname:
-        global FILENAME
+        #global FILENAME
         FILENAME = fname
 
         print("You have chosen this file: ", fname)
 
-        canvas.delete("columns")
-        canvas.delete("result_table")
-        canvas.delete("no_anomalies")
+        #canvas.delete("columns")
+        #canvas.delete("result_table")
+        #canvas.delete("no_anomalies")
 
         fname_label = canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
         #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
-        rect = canvas.create_rectangle(0, 350, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
+        rect = canvas.create_rectangle(0, 330, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
         canvas.tag_lower(rect, fname_label)
 
     else:
@@ -217,11 +225,11 @@ def clear_canvas():
     canvas.delete("anomalies")
 
     dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
-    rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+    rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
     canvas.tag_lower(rect, dname_label)
 
     oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "default_output")
-    rect = canvas.create_rectangle(0, 410, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+    rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
     canvas.tag_lower(rect, oname_label)
 
     print("Canvas is reseted!")
@@ -264,7 +272,7 @@ if args.model_directory:
 else:
     dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
 
-rect = canvas.create_rectangle(0, 290, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
 canvas.tag_lower(rect, dname_label)
 
 
@@ -282,7 +290,7 @@ if args.output_directory:
 else:
     oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "default_output")
 
-rect = canvas.create_rectangle(0, 410, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
 canvas.tag_lower(rect, oname_label)
 
 
