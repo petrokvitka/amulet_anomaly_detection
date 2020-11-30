@@ -10,14 +10,29 @@ This is the main code for AMULET anomaly detection.
 # Imports
 import pandas as pd
 import numpy as np
-from tensorflow.keras.models import load_model
+
 import joblib
 import librosa
 from math import floor
 import sys
 import os
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+import seaborn as sns
+from numpy.random import seed
+import tensorflow as tf
 
+from tensorflow.keras.models import load_model
+from keras.layers import Input, Dense, LSTM, TimeDistributed, RepeatVector
+from keras.models import Model
+
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
+seed(10)
+tf.random.set_seed(10)
+
+print("imports are ready")
 
 # global variables and settings
 timesteps = 1
@@ -190,6 +205,120 @@ def prepare_reshape(X, timesteps):
 	return X
 
 
+def autoencoder_model(X):
+	"""
+	This is an autoencoder model with two LSTM layers on both sides.
+	:param X: input data for the model
+	:returns: autoencoder model
+	"""
+	inputs = Input(shape = (X.shape[1], X.shape[2]))
+	L1 = LSTM(16, activation = 'relu', return_sequences = True)(inputs)#,
+		#kernel_regularizer = regularizers.l2(0.00))(inputs)
+	L2 = LSTM(4, activation = 'relu', return_sequences = False)(L1)
+	L3 = RepeatVector(X.shape[1])(L2)
+	L4 = LSTM(4, activation = 'relu', return_sequences = True)(L3)
+	L5 = LSTM(16, activation = 'relu', return_sequences = True)(L4)
+	output = TimeDistributed(Dense(X.shape[2]))(L5)
+
+	model = Model(inputs = inputs, outputs = output)
+	return model
+
+
+def train_autoencoder(input_file, input_dir, epochs, output_path):
+	"""
+	This function prepares the signal and starts the autoencoder training.
+	"""
+	if input_dir:
+		for f in os.listdir(input_dir):
+			if f.endswith(".wav"):
+				print("Reading ", f)
+				merged_data, _ = read_wav(os.path.join(input_dir, f), 0.1)
+			else:
+				continue
+	elif input_file:
+		merged_data, _ = read_wav(input_file, 0.1)
+
+	print("Merged data shape:", merged_data.shape)
+	merged_data_filename = os.path.join(output_path, "training_data.csv")
+	merged_data.to_csv(merged_data_filename)
+
+	train = merged_data
+
+	# ---------- create, apply and save the scaler ----------
+	scaler = MinMaxScaler()
+	X_train = scaler.fit_transform(train)
+	scaler_filename = os.path.join(output_path, "scaler")
+	print("Saving the scaler " + scaler_filename)
+	joblib.dump(scaler, scaler_filename)
+
+	# ---------- make sure that we can reshape our X_train ----------
+	X_train = prepare_reshape(X_train, timesteps)
+
+	# ---------- create and train the model ----------
+	model = autoencoder_model(X_train)
+	model.compile(optimizer = 'adam', loss = 'mae', metrics = ["mean_squared_error"])
+	model.summary()
+
+	history = model.fit(X_train, X_train, epochs = epochs, batch_size = 10,
+						validation_split = 0.05).history
+
+	# ---------- save loss and accuracy ----------
+	joblib.dump(history['loss'], os.path.join(output_path, "loss"))
+	joblib.dump(history['val_loss'], os.path.join(output_path, "val_loss"))
+	joblib.dump(history['mean_squared_error'], os.path.join(output_path, "accuracy"))
+	joblib.dump(history['val_mean_squared_error'], os.path.join(output_path, "val_accuracy"))
+
+	# ---------- plot the mean squared error ----------
+	fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
+	ax.plot(history['mean_squared_error'], 'b', label = 'Train', linewidth = 2)
+	ax.plot(history['val_mean_squared_error'], 'r', label = 'Validation', linewidth = 2)
+	ax.set_title('Model mean squared error', fontsize = 16)
+	ax.set_ylabel('Mean squared error')
+	ax.set_xlabel('Epoch')
+	ax.legend(loc = 'upper right')
+	fig.savefig(os.path.join(output_path, "Mean_squared_error.png"))
+
+	# ---------- plot the training losses ----------
+	fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
+	ax.plot(history['loss'], 'b', label = 'Train', linewidth = 2)
+	ax.plot(history['val_loss'], 'r', label = 'Validation', linewidth = 2)
+	ax.set_title('Model loss', fontsize = 16)
+	ax.set_ylabel('Loss (mae)')
+	ax.set_xlabel('Epoch')
+	ax.legend(loc = 'upper right')
+	fig.savefig(os.path.join(output_path, "Loss_mae.png"))
+
+	# ---------- now count the loss mae ----------
+	X_pred_train = model.predict(X_train)
+	X_pred_train = X_pred_train.reshape(X_pred_train.shape[0]*X_pred_train.shape[1],
+										X_pred_train.shape[2])
+	X_pred_train = pd.DataFrame(X_pred_train, columns = train.columns)
+
+	scored_train = pd.DataFrame()
+	Xtrain = X_train.reshape(X_train.shape[0]*X_train.shape[1], X_train.shape[2])
+
+	scored_train['Loss_mae'] = np.mean(np.abs(X_pred_train - Xtrain), axis = 1)
+
+	# ---------- plot the distribution of the loss mae ----------
+	fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
+	ax.set_title("Loss Distribution", fontsize = 16)
+	sns.distplot(scored_train['Loss_mae'], bins = 20, kde = True, color = 'blue');
+	fig.savefig(os.path.join(output_path, "Loss_distribution.png"))
+
+	# ---------- announce the threshold for this model ----------
+	threshold = round(max(scored_train['Loss_mae']), 4)
+	print("The loss mae threshold for anomaly is " + str(threshold))
+	threshold_filename = os.path.join(output_path, "anomaly_threshold")
+	print("Saving the threshold to the file " + threshold_filename)
+	joblib.dump(threshold, threshold_filename)
+
+	# ---------- saving the model ----------
+	print("Saving the model...")
+	model_name = os.path.join(output_path, "sound_anomaly_detection.h5")
+	model.save(model_name)
+	print("Model saved to: " + model_name)
+
+
 def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path):
 	"""
 	This function prepares the signal from wav file for the model and calculates
@@ -258,6 +387,8 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path
 	new_labels = [x.split("-")[0][:-13] for x in scored.index.values]
 	new_labels[0] = 0.0
 
+	print("final plot labels", new_labels)
+
 	ax.set_xticklabels(new_labels)
 
 	for index, label in enumerate(ax.get_xticklabels()):
@@ -274,5 +405,3 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path
 	print("Saved anomaly results to {}".format(scored_filename))
 
 	return result
-
-#data_out = detect_anomalies(file_name, model, limit, scaler)
