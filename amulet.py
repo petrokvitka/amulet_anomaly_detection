@@ -16,6 +16,7 @@ import librosa
 from math import floor
 import sys
 import os
+import matplotlib.pyplot as plt
 
 
 # global variables and settings
@@ -189,7 +190,7 @@ def prepare_reshape(X, timesteps):
 	return X
 
 
-def detect_anomalies(file_name, model_path, limit_path, scaler_path):
+def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path):
 	"""
 	This function prepares the signal from wav file for the model and calculates
 	the MAE to detect anomalies.
@@ -213,6 +214,9 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path):
 	data_out = {}
 
 	df, sr = read_wav(file_name, 0.1)
+	df_filename = os.path.join(output_path, "data_for_prediction.csv")
+	df.to_csv(df_filename)
+	print("Saved data for prediction to {}".format(df_filename))
 
 	#normalize the data
 	X = scaler.transform(df)
@@ -225,31 +229,50 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path):
 	preds = pd.DataFrame(preds, columns = df.columns)
 	preds.index = df.index[:preds.shape[0]]
 
+	preds_filename = os.path.join(output_path, "predicted_data.csv")
+	preds.to_csv(preds_filename)
+	print("Saved predicted data to {}".format(preds_filename))
+
 	scored = pd.DataFrame(index = df.index)
 	yhat = X.reshape(X.shape[0]*X.shape[1], X.shape[2])
 	scored["Loss_mae"] = np.mean(np.abs(yhat - preds), axis = 1)
 	scored["Threshold"] = limit
 	scored["Anomaly"] = scored["Loss_mae"] > scored["Threshold"]
 
-	triggered = []
-	for i in range(len(scored)):
-		temp = scored.iloc[i]
-		if temp.iloc[2]:
-			triggered.append(temp)
-	#print(len(triggered))
-	if len(triggered) > 0:
-		print("Anomalies detected!")
-		for j in range(len(triggered)):
-			out = triggered[j]
-			result = {"Anomaly": True, "value": round(out[0], 4), "seconds": out.name}
-			data_out["Analysis"].append(result)
-			print(result)
-
+	if True in scored['Anomaly'].unique():
+		joblib.dump("defect", os.path.join(output_path, "result"))
+		result = "defect"
+		print("defect")
 	else:
-		print("No anomalies detected!")
-		result = {"Anomaly": "No anomalies detected"}
-		data_out["Analysis"].append(result)
+		joblib.dump("good", os.path.join(output_path, "result"))
+		result = "good"
+		print("good")
 
-	return data_out
+	fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
+	ax.plot(scored['Loss_mae'], color = 'blue', label = 'Loss MAE')
+	ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
+
+	labels = ax.get_xticks()
+
+	#get the index values from the dataset and cut to get the second and 2 values after comma
+	new_labels = [x.split("-")[0][:-13] for x in scored.index.values]
+	new_labels[0] = 0.0
+
+	ax.set_xticklabels(new_labels)
+
+	for index, label in enumerate(ax.get_xticklabels()):
+		if index % 10 != 0:
+			label.set_visible(False)
+
+	ax.set_title("Comparing MAE with the anomaly threshold")
+	ax.set_xlabel("Time in sec")
+	ax.legend(loc = 'lower right')
+	fig.savefig(os.path.join(output_path, "predicted_anomaly_with_threshold.png"))
+
+	scored_filename = os.path.join(output_path, "anomaly_results.csv")
+	scored.to_csv(scored_filename)
+	print("Saved anomaly results to {}".format(scored_filename))
+
+	return result
 
 #data_out = detect_anomalies(file_name, model, limit, scaler)

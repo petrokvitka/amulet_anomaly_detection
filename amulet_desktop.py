@@ -72,7 +72,7 @@ def select_model():
                 canvas.delete("rect2")
                 canvas.delete("no_anomalies")
                 canvas.delete("anomalies")
-                
+
                 canvas.delete("default_modeldir")
 
                 dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
@@ -154,9 +154,11 @@ def predict_file():
         else:
             output_path = OUTPUTNAME
 
-        data_out = detect_anomalies(FILENAME, model_path, limit_path, scaler_path)
+        check_directory(output_path, create = True)
 
-        if data_out['Analysis'][0]['Anomaly'] == "No anomalies detected":
+        result = detect_anomalies(FILENAME, model_path, limit_path, scaler_path, output_path)
+
+        if result == "good":
 
             root.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
             canvas.create_image(120, 460, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
