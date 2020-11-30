@@ -54,18 +54,23 @@ def select_model():
     """
     This function gives a possibility to chose a directory with a trained model.
     """
+
     dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with a trained model")
 
     if dname:
-
         global MODELNAME
         MODELNAME = dname
+        canvas.delete("shown_modeldir")
+        canvas.delete("rect2")
+        canvas.delete("no_anomalies")
+        canvas.delete("anomalies")
 
         print("You have chosen this directory with a trained model: ", dname)
         if check_directory(dname, create = False):
             if not (os.path.exists(os.path.join(dname, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(dname, 'anomaly_threshold')) and os.path.exists(os.path.join(dname, 'scaler'))):
                 print("The provided directory ", dname, " does not contain a trained model and anomaly threshold and a corresponding scaler.")
                 messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
+
             else:
 
                 canvas.delete("default_modeldir")
@@ -100,28 +105,20 @@ def browse_file():
     This function helps a user to chose a wav file from the computer.
     The name of the chosen file will show up under the button.
     """
-    global FILENAME
-    FILENAME = ""
-    canvas.delete("shown_fname")
-    canvas.delete("rect")
-    canvas.delete("columns")
-    canvas.delete("result_table")
-    canvas.delete("no_anomalies")
 
     fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
     if fname:
-        #global FILENAME
+        global FILENAME
         FILENAME = fname
+        canvas.delete("shown_fname")
+        canvas.delete("rect")
+        canvas.delete("no_anomalies")
+        canvas.delete("anomalies")
 
         print("You have chosen this file: ", fname)
 
-        #canvas.delete("columns")
-        #canvas.delete("result_table")
-        #canvas.delete("no_anomalies")
-
         fname_label = canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
-        #rect = canvas.create_rectangle(canvas.bbox(fname_label), fill = "white") #covering only the text
         rect = canvas.create_rectangle(0, 330, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
         canvas.tag_lower(rect, fname_label)
 
@@ -134,6 +131,10 @@ def predict_file():
     This function calls the AMULET to detect anomalies and finally shows
     that no anomalies were detected or that some anomalies were detected.
     """
+
+    canvas.delete("no_anomalies")
+    canvas.delete("anomalies")
+
     if FILENAME == "":
         print("There was no file provided!")
         messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
@@ -164,35 +165,6 @@ def predict_file():
             root.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
             canvas.create_image(120, 460, anchor = tk.NW, image = root.anomalies_image, tag = "anomalies")
 
-            """
-            column_names = canvas.create_text(260, 440, text = "Anomaly  Value  Seconds", tag = "columns")
-
-            # ---------- create scrollbar table ----------
-
-            table = tk.Frame(canvas, width = 410, height = 600, bg = "white")
-
-            root.widgets = {}
-            row = 0
-            for r in data_out['Analysis']:
-                row += 1
-                root.widgets[row] = {
-                    "Anomaly": tk.Label(table, text = str(r["Anomaly"]) + "   "),
-                    "Value": tk.Label(table, text = str(r["value"]) + "   "),
-                    "Seconds": tk.Label(table, text = r["seconds"] + " ")
-                }
-
-                root.widgets[row]["Anomaly"].grid(row = row, column = 1, sticky = "nsew")
-                root.widgets[row]["Value"].grid(row = row, column = 2, sticky = "nsew")
-                root.widgets[row]["Seconds"].grid(row = row, column = 3, sticky = "nsew")
-
-            table.grid_columnconfigure(1, weight = 1)
-            table.grid_columnconfigure(2, weight = 3)
-            table.grid_columnconfigure(3, weight = 3)
-            table.grid_rowconfigure(row + 1, weight = 1)
-
-            canvas.create_window(180, 450, anchor = tk.NW, window = table, tag = "result_table")
-            """
-
 def clear_canvas():
     """
     This function awakes after clicking on the "Reset" button and clears
@@ -219,8 +191,6 @@ def clear_canvas():
     canvas.delete("default_output")
     canvas.delete("shown_output")
     canvas.delete("rect3")
-    #canvas.delete("columns")
-    #canvas.delete("result_table")
     canvas.delete("no_anomalies")
     canvas.delete("anomalies")
 
