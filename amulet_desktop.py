@@ -58,12 +58,6 @@ def select_model():
     dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with a trained model")
 
     if dname:
-        global MODELNAME
-        MODELNAME = dname
-        canvas.delete("shown_modeldir")
-        canvas.delete("rect2")
-        canvas.delete("no_anomalies")
-        canvas.delete("anomalies")
 
         print("You have chosen this directory with a trained model: ", dname)
         if check_directory(dname, create = False):
@@ -72,7 +66,13 @@ def select_model():
                 messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
 
             else:
-
+                global MODELNAME
+                MODELNAME = dname
+                canvas.delete("shown_modeldir")
+                canvas.delete("rect2")
+                canvas.delete("no_anomalies")
+                canvas.delete("anomalies")
+                
                 canvas.delete("default_modeldir")
 
                 dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
