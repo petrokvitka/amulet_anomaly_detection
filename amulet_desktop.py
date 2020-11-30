@@ -267,7 +267,7 @@ canvas.tag_lower(rect, oname_label)
 
 
 # ---------- predict anomalies button ----------
-predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 70), Image.ANTIALIAS))
+predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 60), Image.ANTIALIAS))
 predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
 predict_button_window = canvas.create_window(200, 420, anchor = tk.NW, window = predict_button)
 
