@@ -129,18 +129,21 @@ class Win1:
         fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
         if fname:
-            #global FILENAME
             self.FILENAME = fname
             self.canvas.delete("shown_fname")
             self.canvas.delete("rect")
-            self.canvas.delete("learning")
             self.canvas.delete("ready")
+            canvas.delete("no_anomalies")
+            canvas.delete("anomalies")
 
             print("You have chosen this file: ", fname)
 
             fname_label = self.canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
             rect = self.canvas.create_rectangle(0, 330, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
             self.canvas.tag_lower(rect, fname_label)
+
+            self.start_record_button["state"] = "disabled"
+            self.stop_record_button["state"] = "disabled"
 
         else:
             print("There was no file provided!")
@@ -158,7 +161,7 @@ class Win2(Win1):
         self.master.iconphoto(False, PhotoImage(file = 'static/img/train.png'))
 
         self.FILENAME = ""
-        self.DIRNAME = ""
+        self.RECORDED = False
         self.OUTPUTNAME = "./training_output"
 
         self.st = 1
@@ -178,16 +181,16 @@ class Win2(Win1):
         bg = self.canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
         # ---------- start record button ----------
-        start_record_button = tk.Button(master = self.master, text = "Start record", command = self.start_record_wav)
-        start_record_button_window = self.canvas.create_window(170, 240, anchor = tk.NW, window = start_record_button)
+        self.start_record_button = tk.Button(master = self.master, text = "Start record", command = self.start_record_wav)
+        start_record_button_window = self.canvas.create_window(170, 240, anchor = tk.NW, window = self.start_record_button)
 
         # ---------- stop record button ----------
-        stop_record_button = tk.Button(master = self.master, text = "Stop record", command = self.stop_record_wav)
-        stop_record_button_window = self.canvas.create_window(290, 240, anchor = tk.NW, window = stop_record_button)
+        self.stop_record_button = tk.Button(master = self.master, text = "Stop record", command = self.stop_record_wav)
+        stop_record_button_window = self.canvas.create_window(290, 240, anchor = tk.NW, window = self.stop_record_button)
 
         # ---------- browse file button ----------
-        bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
+        self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
 
         # ---------- create/chose output directory button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
@@ -237,25 +240,24 @@ class Win2(Win1):
         else:
             print("Number of epochs is:", epochs)
 
-            self.canvas.delete("learning")
             self.canvas.delete("ready")
 
-            if (self.FILENAME == "" and self.DIRNAME == ""):
+            if (self.FILENAME == "" and not self.RECORDED):
                 print("There was no data for the training provided!")
-                messagebox.showinfo("Error: No wav file", "Please chose a wav file or a directory with wav files first!")
+                messagebox.showinfo("Error: No wav file", "Please chose a wav file or record a wav file first!")
             else:
-                self.master.training_image = ImageTk.PhotoImage(Image.open("static/img/robot_learning.png").resize((300, 300), Image.ANTIALIAS))
-                self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.training_image, tag = "learning")
 
-                dir_path = self.DIRNAME
-                file_path = self.FILENAME
+                if self.FILENAME:
+                    file_path = self.FILENAME
+                elif self.RECORDED:
+                    file_path = "./recordings_for_training/recorded.wav"
+
                 output_path = self.OUTPUTNAME
 
                 self.check_directory(output_path, create = True)
 
-                train_autoencoder(file_path, dir_path, int(epochs), output_path)
+                train_autoencoder(file_path, int(epochs), output_path)
 
-                self.canvas.delete("learning")
                 self.master.ready_image = ImageTk.PhotoImage(Image.open("static/img/ready.png").resize((300, 300), Image.ANTIALIAS))
                 self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.ready_image, tag = "ready")
 
@@ -266,34 +268,37 @@ class Win2(Win1):
         Note that this function also resets the directory of the trained model
         to the default directory ./example_model.
         """
-        #global FILENAME
+
         self.FILENAME = ""
-
-        #global DIRNAME
-        self.DIRNAME = ""
-
-        #args.output_directory = ""
-        #global OUTPUTNAME
+        self.RECORDED = False
         self.OUTPUTNAME = "./training_output"
 
-        self.canvas.delete("shown_traindir")
+        self.canvas.delete("recorded_wav")
         self.canvas.delete("rect2")
         self.canvas.delete("shown_fname")
         self.canvas.delete("rect")
         self.canvas.delete("default_output")
         self.canvas.delete("shown_output")
         self.canvas.delete("rect3")
-        self.canvas.delete("learning")
         self.canvas.delete("ready")
 
         oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
         rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
         self.canvas.tag_lower(rect, oname_label)
 
+        self.bro_button["state"] = "normal"
+        self.start_record_button["state"] = "normal"
+        self.stop_record_button["state"] = "normal"
+
         print("Canvas is reseted!")
 
     def start_record_wav(self):
         print("Start recording")
+
+        self.canvas.delete("recorded_wav")
+        self.canvas.delete("rect2")
+        self.canvas.delete("ready")
+
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True)
         self.isrecording = True
@@ -301,23 +306,35 @@ class Win2(Win1):
         t = threading.Thread(target = self.record)
         t.start()
 
+        self.start_record_button["state"] = "disabled"
+
     def stop_record_wav(self):
+        self.check_directory("./recordings_for_training", create = True)
+
         print("Stop recording")
         self.isrecording = False
-        print("Recording complete")
-        wf = wave.open("./record_for_training.wav", 'wb')
+        print("Recording complete, writing to the file ./recordings_for_training/recorded.wav")
+        wf = wave.open("./recordings_for_training/recorded.wav", 'wb')
         wf.setnchannels(self.channels)
         wf.setsampwidth(self.p.get_sample_size(self.sample_format))
         wf.setframerate(self.fs)
         wf.writeframes(b''.join(self.frames))
         wf.close()
 
+        recorded_label = self.canvas.create_text(280, 280, text = "./recordings_for_training/recorded.wav", tag = "recorded_wav")
+        rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2")
+        self.canvas.tag_lower(rect, recorded_label)
+
+        self.bro_button["state"] = "disabled"
+        self.stop_record_button["state"] = "disabled"
+        self.RECORDED = True
+
     def record(self):
         while self.isrecording:
             data = self.stream.read(self.chunk)
             self.frames.append(data)
 
-        self.frames = []
+        self.frames = [] #to overwrite the old file instead of appending to it
 
 class Win3(Win1):
     def __init__(self, master):

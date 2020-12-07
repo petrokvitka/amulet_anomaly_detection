@@ -224,19 +224,12 @@ def autoencoder_model(X):
 	return model
 
 
-def train_autoencoder(input_file, input_dir, epochs, output_path):
+def train_autoencoder(input_file, epochs, output_path):
 	"""
 	This function prepares the signal and starts the autoencoder training.
 	"""
-	if input_dir:
-		for f in os.listdir(input_dir):
-			if f.endswith(".wav"):
-				print("Reading ", f)
-				merged_data, _ = read_wav(os.path.join(input_dir, f), 0.1)
-			else:
-				continue
-	elif input_file:
-		merged_data, _ = read_wav(input_file, 0.1)
+	print("Reading the file {} for the training".format(input_file))
+	merged_data, _ = read_wav(input_file, 0.1)
 
 	print("Merged data shape:", merged_data.shape)
 	merged_data_filename = os.path.join(output_path, "training_data.csv")
