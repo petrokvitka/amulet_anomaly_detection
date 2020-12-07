@@ -5,7 +5,7 @@ import argparse
 import sys
 
 from PIL import Image, ImageTk
-from amulet import train_autoencoder
+from amulet import train_autoencoder, detect_anomalies
 
 WIDTH, HEIGTH = 550, 1000
 
@@ -187,10 +187,10 @@ class Win2(Win1):
         self.canvas.create_window(350, 420, window = self.entry_epochs)
 
         # ---------- start training button ----------
-        predict_image = ImageTk.PhotoImage(Image.open("static/img/button_start.png").resize((145, 60), Image.ANTIALIAS))
-        self.canvas.predict_image = predict_image
-        predict_button = tk.Button(master = self.master, text = "", image = predict_image, command = self.train_model)
-        predict_button_window = self.canvas.create_window(200, 440, anchor = tk.NW, window = predict_button)
+        train_image = ImageTk.PhotoImage(Image.open("static/img/button_start.png").resize((145, 60), Image.ANTIALIAS))
+        self.canvas.train_image = train_image
+        train_button = tk.Button(master = self.master, text = "", image = train_image, command = self.train_model)
+        train_button_window = self.canvas.create_window(200, 440, anchor = tk.NW, window = train_button)
 
         # ----------- reset button ----------
         reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
@@ -296,12 +296,38 @@ class Win3(Win1):
         self.canvas.background = background_image #keep a reference in case this code is put in a function
         bg = self.canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
+        # ---------- choose a directory with trained model ----------
         model_button = tk.Button(master = self.master, text = "Choose a directory with the trained model", command = self.select_model)
         model_button_window = self.canvas.create_window(120, 240, anchor = tk.NW, window = model_button)
 
         dname_label = self.canvas.create_text(250, 280, text = self.MODELNAME, tag = "default_modeldir")
         rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
         self.canvas.tag_lower(rect, dname_label)
+
+        # ---------- browse file button ----------
+        bro_button = tk.Button(master = self.master, text = "Choose a wav file", command = self.browse_file)
+        bro_button_window = self.canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
+
+        # ---------- output dir button ----------
+        output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
+        output_button = self.canvas.create_window(170, 360, anchor = tk.NW, window = output_button)
+
+        oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
+
+        rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+        self.canvas.tag_lower(rect, oname_label)
+
+        # ---------- start training button ----------
+        predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 60), Image.ANTIALIAS))
+        self.canvas.predict_image = predict_image
+        predict_button = tk.Button(master = self.master, text = "", image = predict_image, command = self.predict_file)
+        predict_button_window = self.canvas.create_window(200, 420, anchor = tk.NW, window = predict_button)
+
+        # ----------- reset button ----------
+        reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
+        self.canvas.reset_image = reset_image
+        clear_button = tk.Button(master = self.master, text = "", image = reset_image, command = self.clear_canvas)
+        clear_button_window = self.canvas.create_window(235, 930, anchor = tk.NW, window = clear_button)
 
     def select_model(self):
         """
@@ -332,31 +358,71 @@ class Win3(Win1):
                     rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
                     self.canvas.tag_lower(rect, dname_label)
 
+    def predict_file(self):
+        """
+        This function calls the AMULET to detect anomalies and finally shows
+        that no anomalies were detected or that some anomalies were detected.
+        """
 
+        self.canvas.delete("no_anomalies")
+        self.canvas.delete("anomalies")
 
+        if self.FILENAME == "":
+            print("There was no file provided!")
+            messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
+        else:
+            # ---------- check for anomalies ----------
+            model_path = os.path.join(self.MODELNAME, 'sound_anomaly_detection.h5')
+            limit_path = os.path.join(self.MODELNAME, 'anomaly_threshold')
+            scaler_path = os.path.join(self.MODELNAME, 'scaler')
 
+            output_path = self.OUTPUTNAME
 
+            self.check_directory(output_path, create = True)
 
+            result = detect_anomalies(self.FILENAME, model_path, limit_path, scaler_path, output_path)
 
+            if result == "good":
 
+                self.master.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
+                self.canvas.create_image(130, 500, anchor = tk.NW, image = self.master.no_anomalies_image, tag = "no_anomalies")
 
+            else:
+                self.master.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
+                self.canvas.create_image(130, 500, anchor = tk.NW, image = self.master.anomalies_image, tag = "anomalies")
 
+    def clear_canvas(self):
+        """
+        This function awakes after clicking on the "Reset" button and clears
+        everything for the next run of AMULET.
+        Note that this function also resets the directory of the trained model
+        to the default directory ./example_model.
+        """
+        self.FILENAME = ""
+        self.MODELNAME = "./example_model"
+        self.OUTPUTNAME = "./prediction_output"
 
+        self.canvas.delete("default_modeldir")
+        self.canvas.delete("shown_modeldir")
+        self.canvas.delete("rect2")
+        self.canvas.delete("shown_fname")
+        self.canvas.delete("rect")
+        self.canvas.delete("default_output")
+        self.canvas.delete("shown_output")
+        self.canvas.delete("rect3")
+        self.canvas.delete("no_anomalies")
+        self.canvas.delete("anomalies")
 
+        dname_label = self.canvas.create_text(250, 280, text = self.MODELNAME, tag = "default_modeldir")
+        rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+        self.canvas.tag_lower(rect, dname_label)
 
+        oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
+        rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+        self.canvas.tag_lower(rect, oname_label)
 
-
-
-
-
-
-
-
-
-
-
-
-
+        print("Canvas is reseted!")
+        
 root = tk.Tk()
 app = Win1(root)
 root.mainloop()
