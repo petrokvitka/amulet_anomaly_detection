@@ -97,34 +97,6 @@ class Win1:
                 return False
         return True
 
-    """
-    def clear_canvas(self):
-
-        This function awakes after clicking on the "Reset" button and clears
-        everything for the next run of AMULET.
-        Note that this function also resets the directory of the trained model
-        to the default directory ./example_model.
-
-        self.FILENAME = ""
-        self.DIRNAME = ""
-        self.OUTPUTNAME = "./training_output"
-
-        self.canvas.delete("shown_traindir")
-        self.canvas.delete("rect2")
-        self.canvas.delete("shown_fname")
-        self.canvas.delete("rect")
-        self.canvas.delete("default_output")
-        self.canvas.delete("shown_output")
-        self.canvas.delete("rect3")
-        self.canvas.delete("learning")
-        self.canvas.delete("ready")
-
-        oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
-        rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
-        self.canvas.tag_lower(rect, oname_label)
-
-        print("Canvas is reseted!")
-    """
 class Win2(Win1):
 
     def __init__(self, master):
@@ -190,7 +162,26 @@ class Win2(Win1):
         print("Browse file")
 
     def choose_output_dir(self):
-        print("Chose output dir")
+        """
+        This function gives a possibility to set an output directory.
+
+        """
+        oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
+
+        if oname:
+
+            #global OUTPUTNAME
+            self.OUTPUTNAME = oname
+
+            print("You have set the output directory: ", oname)
+            if self.check_directory(oname, create = True):
+
+                self.canvas.delete("default_output")
+
+                oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "shown_output")
+                rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+                self.canvas.tag_lower(rect, oname_label)
+
 
     def train_model(self):
         print("Train model")
