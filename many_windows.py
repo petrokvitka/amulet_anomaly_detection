@@ -97,6 +97,52 @@ class Win1:
                 return False
         return True
 
+    def choose_output_dir(self):
+        """
+        This function gives a possibility to set an output directory.
+
+        """
+        oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
+
+        if oname:
+
+            self.OUTPUTNAME = oname
+
+            print("You have set the output directory: ", oname)
+            if self.check_directory(oname, create = True):
+
+                self.canvas.delete("default_output")
+
+                oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "shown_output")
+                rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+                self.canvas.tag_lower(rect, oname_label)
+
+    def browse_file(self):
+        """
+        This function helps a user to chose a wav file from the computer.
+        The name of the chosen file will show up under the button.
+        """
+
+        fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
+
+        if fname:
+            #global FILENAME
+            self.FILENAME = fname
+            self.canvas.delete("shown_fname")
+            self.canvas.delete("rect")
+            self.canvas.delete("learning")
+            self.canvas.delete("ready")
+
+            print("You have chosen this file: ", fname)
+
+            fname_label = self.canvas.create_text(270, 340, text = os.path.basename(fname), tag = "shown_fname")
+            rect = self.canvas.create_rectangle(0, 330, 550, 350, fill = "white", outline = "white", tag = "rect") #add a box to hide the filename from the past
+            self.canvas.tag_lower(rect, fname_label)
+
+        else:
+            print("There was no file provided!")
+            messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
+
 class Win2(Win1):
 
     def __init__(self, master):
@@ -110,9 +156,6 @@ class Win2(Win1):
         self.DIRNAME = ""
         self.OUTPUTNAME = "./training_output"
 
-        #self.show_widgets()
-
-    #def show_widgets(self):
         # ---------- background canvas ----------
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
         self.canvas.pack(expand = True)
@@ -140,8 +183,8 @@ class Win2(Win1):
         # ---------- entry epochs number ----------
         epochs_label = tk.Label(master = self.master, text = "Number of epochs:")
         self.canvas.create_window(200, 420, window = epochs_label)
-        entry_epochs = tk.Entry(master = self.master)
-        self.canvas.create_window(350, 420, window = entry_epochs)
+        self.entry_epochs = tk.Entry(master = self.master)
+        self.canvas.create_window(350, 420, window = self.entry_epochs)
 
         # ---------- start training button ----------
         predict_image = ImageTk.PhotoImage(Image.open("static/img/button_start.png").resize((145, 60), Image.ANTIALIAS))
@@ -158,33 +201,48 @@ class Win2(Win1):
     def select_model(self):
         print("THIS SHOULD GO")
 
-    def browse_file(self):
-        print("Browse file")
-
-    def choose_output_dir(self):
-        """
-        This function gives a possibility to set an output directory.
-
-        """
-        oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
-
-        if oname:
-
-            #global OUTPUTNAME
-            self.OUTPUTNAME = oname
-
-            print("You have set the output directory: ", oname)
-            if self.check_directory(oname, create = True):
-
-                self.canvas.delete("default_output")
-
-                oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "shown_output")
-                rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
-                self.canvas.tag_lower(rect, oname_label)
-
-
     def train_model(self):
-        print("Train model")
+        """
+        This function calls the AMULET to detect anomalies and finally shows
+        that no anomalies were detected or that some anomalies were detected.
+        """
+        epochs = self.entry_epochs.get()
+        if epochs == "":
+            print("There was no number of epochs provided!")
+            messagebox.showinfo("Error: No epochs number", "Please provide a number of epochs for the training!")
+
+        elif not epochs.isnumeric():
+            print("There was no number of epochs provided!")
+            messagebox.showinfo("Error: No epochs number", "Please provide a number of epochs for the training as an integer number!")
+
+        elif int(epochs) <= 0:
+            print("Epochs number can not be 0 or smaller!")
+            messagebox.showinfo("Error: False epochs number", "Please provide a number of epochs for the training as an integer number that is greater than 0!")
+
+        else:
+            print("Number of epochs is:", epochs)
+
+            self.canvas.delete("learning")
+            self.canvas.delete("ready")
+
+            if (self.FILENAME == "" and self.DIRNAME == ""):
+                print("There was no data for the training provided!")
+                messagebox.showinfo("Error: No wav file", "Please chose a wav file or a directory with wav files first!")
+            else:
+                self.master.training_image = ImageTk.PhotoImage(Image.open("static/img/robot_learning.png").resize((300, 300), Image.ANTIALIAS))
+                self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.training_image, tag = "learning")
+
+                dir_path = self.DIRNAME
+                file_path = self.FILENAME
+                output_path = self.OUTPUTNAME
+
+                self.check_directory(output_path, create = True)
+
+                train_autoencoder(file_path, dir_path, int(epochs), output_path)
+
+                self.canvas.delete("learning")
+                self.master.ready_image = ImageTk.PhotoImage(Image.open("static/img/ready.png").resize((300, 300), Image.ANTIALIAS))
+                self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.ready_image, tag = "ready")
 
     def clear_canvas(self):
         """
