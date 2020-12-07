@@ -7,6 +7,9 @@ import sys
 from PIL import Image, ImageTk
 from amulet import train_autoencoder, detect_anomalies
 
+import pyaudio
+import wave
+
 WIDTH, HEIGTH = 550, 1000
 
 class Win1:
@@ -21,7 +24,6 @@ class Win1:
         self.master.iconphoto(False, PhotoImage(file = 'static/img/amulet_favicon.png'))
 
         self.FILENAME = ""
-        self.DIRNAME = ""
         self.OUTPUTNAME = ""
 
         self.show_widgets()
@@ -143,6 +145,8 @@ class Win1:
             print("There was no file provided!")
             messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
+
+
 class Win2(Win1):
 
     def __init__(self, master):
@@ -155,6 +159,11 @@ class Win2(Win1):
         self.FILENAME = ""
         self.DIRNAME = ""
         self.OUTPUTNAME = "./training_output"
+        self.CHUNK = 3024
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 2
+        self.RATE = 44100
+        self.p = pyaudio.PyAudio()
 
         # ---------- background canvas ----------
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
@@ -163,13 +172,17 @@ class Win2(Win1):
         self.canvas.background = background_image #keep a reference in case this code is put in a function
         bg = self.canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
-        # ---------- browse input directory button ----------
-        inputdir_button = tk.Button(master = self.master, text = "Choose a directory with wav files", command = self.select_model)
-        inputdir_button_window = self.canvas.create_window(145, 240, anchor = tk.NW, window = inputdir_button)
+        # ---------- start record button ----------
+        start_record_button = tk.Button(master = self.master, text = "Start record", command = self.start_record_wav)
+        start_record_button_window = self.canvas.create_window(170, 240, anchor = tk.NW, window = start_record_button)
+
+        # ---------- stop record button ----------
+        stop_record_button = tk.Button(master = self.master, text = "Stop record", command = self.stop_record_wav)
+        stop_record_button_window = self.canvas.create_window(290, 240, anchor = tk.NW, window = stop_record_button)
 
         # ---------- browse file button ----------
         bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
 
         # ---------- create/chose output directory button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
@@ -197,9 +210,6 @@ class Win2(Win1):
         self.canvas.reset_image = reset_image
         clear_button = tk.Button(master = self.master, text = "", image = reset_image, command = self.clear_canvas)
         clear_button_window = self.canvas.create_window(235, 930, anchor = tk.NW, window = clear_button)
-
-    def select_model(self):
-        print("THIS SHOULD GO")
 
     def train_model(self):
         """
@@ -277,6 +287,13 @@ class Win2(Win1):
 
         print("Canvas is reseted!")
 
+    def start_record_wav(self):
+        print("Started recording")
+        print(self.CHUNK)
+        #print("filename ", filename)
+
+    def stop_record_wav(self):
+        print("Stopped recording")
 
 class Win3(Win1):
     def __init__(self, master):
@@ -422,7 +439,8 @@ class Win3(Win1):
         self.canvas.tag_lower(rect, oname_label)
 
         print("Canvas is reseted!")
-        
+
+
 root = tk.Tk()
 app = Win1(root)
 root.mainloop()
