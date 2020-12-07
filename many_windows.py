@@ -5,7 +5,7 @@ import argparse
 import sys
 
 from PIL import Image, ImageTk
-
+from amulet import train_autoencoder
 
 WIDTH, HEIGTH = 550, 1000
 
@@ -19,6 +19,10 @@ class Win1:
         self.master.title("AMULET")
         self.master.resizable(False, False)
         self.master.iconphoto(False, PhotoImage(file = 'static/img/amulet_favicon.png'))
+
+        self.FILENAME = ""
+        self.DIRNAME = ""
+        self.OUTPUTNAME = ""
 
         self.show_widgets()
 
@@ -70,14 +74,68 @@ class Win1:
     def close_window(self):
         self.master.destroy()
 
+    def check_directory(self, directory, create = False):
+        """
+        This function checks if the directory exists, and if so, if the object on the provided
+        path is a directory. If the directory we are checking is an output directory and does not exist, a new directory will be created.
+        :param directory: path to the object we want to check
+        :param create: set to True, if the provided object is an output directory
+        """
+        if not os.path.exists(directory):
+            if create:
+                os.makedirs(directory)
+                print('A new directory ' + directory + ' was created.')
+                return True
+            else:
+                print('The provided directory ' + directory + ' does not exist, the exit is forced.')
+                messagebox.showinfo("Error!", "The provided directory '{}' does not exist.".format(directory))
+                return False
+        else: #check if provided path calls a directory
+            if not os.path.isdir(directory):
+                print('Please make sure that the ' + directory + ' is a directory!')
+                messagebox.showinfo("Error!", "Make sure that '{}' is a directory!".format(directory))
+                return False
+        return True
+
+    def clear_canvas(self):
+        """
+        This function awakes after clicking on the "Reset" button and clears
+        everything for the next run of AMULET.
+        Note that this function also resets the directory of the trained model
+        to the default directory ./example_model.
+        """
+        self.FILENAME = ""
+        self.DIRNAME = ""
+        self.OUTPUTNAME = "./training_output"
+
+        self.canvas.delete("shown_traindir")
+        self.canvas.delete("rect2")
+        self.canvas.delete("shown_fname")
+        self.canvas.delete("rect")
+        self.canvas.delete("default_output")
+        self.canvas.delete("shown_output")
+        self.canvas.delete("rect3")
+        self.canvas.delete("learning")
+        self.canvas.delete("ready")
+
+        oname_label = self.canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
+        rect = self.canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
+        self.canvas.tag_lower(rect, oname_label)
+
+        print("Canvas is reseted!")
 
 class Win2(Win1):
+
     def __init__(self, master):
 
         self.master = master
         self.master.title("Model training")
         self.master.resizable(False, False)
         self.master.iconphoto(False, PhotoImage(file = 'static/img/train.png'))
+
+        self.FILENAME = ""
+        self.DIRNAME = ""
+        self.OUTPUTNAME = "./training_output"
 
         self.show_widgets()
 
@@ -90,21 +148,18 @@ class Win2(Win1):
         bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
         # ---------- browse input directory button ----------
-        inputdir_button = tk.Button(master = self.master, text = "Choose a directory with wav files", command = select_model)
+        inputdir_button = tk.Button(master = self.master, text = "Choose a directory with wav files", command = self.select_model)
         inputdir_button_window = canvas.create_window(145, 240, anchor = tk.NW, window = inputdir_button)
 
         # ---------- browse file button ----------
-        bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = browse_file)
+        bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
         bro_button_window = canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
 
         # ---------- create/chose output directory button ----------
-        output_button = tk.Button(master = self.master, text = "Choose an output directory", command = choose_output_dir)
+        output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
         output_button = canvas.create_window(170, 360, anchor = tk.NW, window = output_button)
 
-        if args.output_directory:
-            oname_label = canvas.create_text(250, 400, text = args.output_directory, tag = "default_output")
-        else:
-            oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "default_output")
+        oname_label = canvas.create_text(250, 400, text = self.OUTPUTNAME, tag = "default_output")
 
         rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
         canvas.tag_lower(rect, oname_label)
@@ -117,13 +172,28 @@ class Win2(Win1):
 
         # ---------- start training button ----------
         predict_image = ImageTk.PhotoImage(Image.open("static/img/button_start.png").resize((145, 60), Image.ANTIALIAS))
-        predict_button = tk.Button(master = self.master, text = "", image = predict_image, command = train_model)
+        canvas.predict_image = predict_image
+        predict_button = tk.Button(master = self.master, text = "", image = predict_image, command = self.train_model)
         predict_button_window = canvas.create_window(200, 440, anchor = tk.NW, window = predict_button)
 
         # ----------- reset button ----------
         reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
-        clear_button = tk.Button(master = self.master, text = "", image = reset_image, command = clear_canvas)
+        canvas.reset_image = reset_image
+        clear_button = tk.Button(master = self.master, text = "", image = reset_image, command = self.clear_canvas)
         clear_button_window = canvas.create_window(235, 930, anchor = tk.NW, window = clear_button)
+
+    def select_model(self):
+        print("THIS SHOULD GO")
+
+    def browse_file(self):
+        print("Browse file")
+
+    def choose_output_dir(self):
+        print("Chose output dir")
+
+    def train_model(self):
+        print("Train model")
+
 
 
 class Win3(Win1):
