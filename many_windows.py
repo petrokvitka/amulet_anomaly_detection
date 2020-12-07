@@ -7,6 +7,7 @@ import sys
 from PIL import Image, ImageTk
 from amulet import train_autoencoder, detect_anomalies
 
+import threading
 import pyaudio
 import wave
 
@@ -159,11 +160,15 @@ class Win2(Win1):
         self.FILENAME = ""
         self.DIRNAME = ""
         self.OUTPUTNAME = "./training_output"
-        self.CHUNK = 3024
-        self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 2
-        self.RATE = 44100
-        self.p = pyaudio.PyAudio()
+
+        self.st = 1
+        self.frames = []
+        self.chunk = 1024
+        self.sample_format = pyaudio.paInt16
+        self.channels = 2
+        self.fs = 44100
+
+        self.isrecording = False
 
         # ---------- background canvas ----------
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
@@ -288,12 +293,31 @@ class Win2(Win1):
         print("Canvas is reseted!")
 
     def start_record_wav(self):
-        print("Started recording")
-        print(self.CHUNK)
-        #print("filename ", filename)
+        print("Start recording")
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True)
+        self.isrecording = True
+
+        t = threading.Thread(target = self.record)
+        t.start()
 
     def stop_record_wav(self):
-        print("Stopped recording")
+        print("Stop recording")
+        self.isrecording = False
+        print("Recording complete")
+        wf = wave.open("./record_for_training.wav", 'wb')
+        wf.setnchannels(self.channels)
+        wf.setsampwidth(self.p.get_sample_size(self.sample_format))
+        wf.setframerate(self.fs)
+        wf.writeframes(b''.join(self.frames))
+        wf.close()
+
+    def record(self):
+        while self.isrecording:
+            data = self.stream.read(self.chunk)
+            self.frames.append(data)
+
+        self.frames = []
 
 class Win3(Win1):
     def __init__(self, master):
