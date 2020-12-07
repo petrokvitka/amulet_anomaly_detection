@@ -286,14 +286,75 @@ class Win3(Win1):
         self.master.resizable(False, False)
         self.master.iconphoto(False, PhotoImage(file = 'static/img/detect.png'))
 
-        self.show_widgets()
+        self.FILENAME = ""
+        self.MODELNAME = "./example_model"
+        self.OUTPUTNAME = "./prediction_output"
 
-    def show_widgets(self):
-        canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
-        canvas.pack(expand = True)
+        self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
+        self.canvas.pack(expand = True)
         background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
-        canvas.background = background_image #keep a reference in case this code is put in a function
-        bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
+        self.canvas.background = background_image #keep a reference in case this code is put in a function
+        bg = self.canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
+
+        model_button = tk.Button(master = self.master, text = "Choose a directory with the trained model", command = self.select_model)
+        model_button_window = self.canvas.create_window(120, 240, anchor = tk.NW, window = model_button)
+
+        dname_label = self.canvas.create_text(250, 280, text = self.MODELNAME, tag = "default_modeldir")
+        rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
+        self.canvas.tag_lower(rect, dname_label)
+
+    def select_model(self):
+        """
+        This function gives a possibility to chose a directory with a trained model.
+        """
+
+        dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with a trained model")
+
+        if dname:
+
+            print("You have chosen this directory with a trained model: ", dname)
+            if self.check_directory(dname, create = False):
+                if not (os.path.exists(os.path.join(dname, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(dname, 'anomaly_threshold')) and os.path.exists(os.path.join(dname, 'scaler'))):
+                    print("The provided directory ", dname, " does not contain a trained model and anomaly threshold and a corresponding scaler.")
+                    messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
+
+                else:
+                    #global MODELNAME
+                    self.MODELNAME = dname
+                    self.canvas.delete("shown_modeldir")
+                    self.canvas.delete("rect2")
+                    self.canvas.delete("no_anomalies")
+                    self.canvas.delete("anomalies")
+
+                    self.canvas.delete("default_modeldir")
+
+                    dname_label = self.canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
+                    rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
+                    self.canvas.tag_lower(rect, dname_label)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 root = tk.Tk()
