@@ -366,6 +366,8 @@ class Win3(Win1):
 
         self.isrecording = False
 
+        self.THRESHOLD = 8
+
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
         self.canvas.pack(expand = True)
         background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
@@ -405,7 +407,7 @@ class Win3(Win1):
         threshold_label = tk.Label(master = self.master, text = "Anomaly threshold \n (10 = high sensitivity)")
         self.canvas.create_window(130, 485, anchor = tk.NW, window = threshold_label)
         self.threshold_scale = tk.Scale(master = self.master, from_ = 0, to = 10, orient = HORIZONTAL)
-        self.threshold_scale.set(10) #set the default to the highest sensitivity
+        self.threshold_scale.set(self.THRESHOLD) #set the default to the highest sensitivity
         self.canvas.create_window(315, 480, anchor = tk.NW, window = self.threshold_scale)
 
         # ---------- start training button ----------
@@ -479,7 +481,7 @@ class Win3(Win1):
             sensitivity = self.threshold_scale.get()
             print("Anomaly threshold sensitivity: ", sensitivity)
 
-            anomaly_threshold = set_threshold(limit_path, sensitivity)
+            anomaly_threshold = set_threshold(limit_path, sensitivity, self.THRESHOLD)
 
             result = detect_anomalies(file_path, model_path, anomaly_threshold, scaler_path, output_path)
 
@@ -528,7 +530,7 @@ class Win3(Win1):
         self.start_record_button["state"] = "normal"
         self.stop_record_button["state"] = "normal"
 
-        self.threshold_scale.set(10) #set the default to the highest sensitivity
+        self.threshold_scale.set(self.THRESHOLD) #set the default to the highest sensitivity
 
         print("Canvas is reseted!")
 

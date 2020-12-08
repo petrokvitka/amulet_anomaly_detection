@@ -312,13 +312,18 @@ def train_autoencoder(input_file, epochs, output_path):
 	print("Model saved to: " + model_name)
 
 
-def set_threshold(limit_path, sensitivity):
+def set_threshold(limit_path, sensitivity, default_threshold):
 	print("Setting threshold")
 
 	limit = joblib.load(limit_path)
 	print("Default anomaly threshold is ", str(limit))
 
-	
+	if sensitivity == default_threshold:
+		return limit
+	else:
+		real_sensitivity = default_threshold - sensitivity
+		new_limit = limit + ((limit * real_sensitivity * 30) / 100) #one step is 30%
+		return new_limit
 
 
 def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, output_path):
@@ -337,6 +342,7 @@ def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, outp
 	scaler = joblib.load(scaler_path)
 	print("The scaler is loaded.")
 
+	print("Anomaly threshold of {} will be used.".format(str(anomaly_threshold)))
 
 	print("AMULET starts detecting anomalies.")
 
