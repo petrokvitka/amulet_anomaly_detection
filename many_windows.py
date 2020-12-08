@@ -26,6 +26,7 @@ class Win1:
 
         self.FILENAME = ""
         self.OUTPUTNAME = ""
+        self.RECORDDIR = ""
 
         self.show_widgets()
 
@@ -133,8 +134,8 @@ class Win1:
             self.canvas.delete("shown_fname")
             self.canvas.delete("rect")
             self.canvas.delete("ready")
-            canvas.delete("no_anomalies")
-            canvas.delete("anomalies")
+            self.canvas.delete("no_anomalies")
+            self.canvas.delete("anomalies")
 
             print("You have chosen this file: ", fname)
 
@@ -149,6 +150,51 @@ class Win1:
             print("There was no file provided!")
             messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
+    def start_record_wav(self):
+        print("Start recording")
+
+        self.bro_button["state"] = "disabled"
+
+        self.canvas.delete("recorded_wav")
+        self.canvas.delete("rect2")
+        self.canvas.delete("ready")
+
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True)
+        self.isrecording = True
+
+        t = threading.Thread(target = self.record)
+        t.start()
+
+        self.start_record_button["state"] = "disabled"
+
+    def stop_record_wav(self):
+        self.check_directory(self.RECORDDIR, create = True)
+
+        print("Stop recording")
+        self.isrecording = False
+        record_file = "{}/recorded.wav".format(self.RECORDDIR)
+        print("Recording complete, writing to the file {}".format(record_file))
+        wf = wave.open(record_file, 'wb')
+        wf.setnchannels(self.channels)
+        wf.setsampwidth(self.p.get_sample_size(self.sample_format))
+        wf.setframerate(self.fs)
+        wf.writeframes(b''.join(self.frames))
+        wf.close()
+
+        recorded_label = self.canvas.create_text(280, 280, text = record_file, tag = "recorded_wav")
+        rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2")
+        self.canvas.tag_lower(rect, recorded_label)
+
+        self.stop_record_button["state"] = "disabled"
+        self.RECORDED = True
+
+    def record(self):
+        while self.isrecording:
+            data = self.stream.read(self.chunk)
+            self.frames.append(data)
+
+        self.frames = [] #to overwrite the old file instead of appending to it
 
 
 class Win2(Win1):
@@ -163,6 +209,7 @@ class Win2(Win1):
         self.FILENAME = ""
         self.RECORDED = False
         self.OUTPUTNAME = "./training_output"
+        self.RECORDDIR = "./recordings_for_training"
 
         self.st = 1
         self.frames = []
@@ -292,49 +339,7 @@ class Win2(Win1):
 
         print("Canvas is reseted!")
 
-    def start_record_wav(self):
-        print("Start recording")
 
-        self.canvas.delete("recorded_wav")
-        self.canvas.delete("rect2")
-        self.canvas.delete("ready")
-
-        self.p = pyaudio.PyAudio()
-        self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True)
-        self.isrecording = True
-
-        t = threading.Thread(target = self.record)
-        t.start()
-
-        self.start_record_button["state"] = "disabled"
-
-    def stop_record_wav(self):
-        self.check_directory("./recordings_for_training", create = True)
-
-        print("Stop recording")
-        self.isrecording = False
-        print("Recording complete, writing to the file ./recordings_for_training/recorded.wav")
-        wf = wave.open("./recordings_for_training/recorded.wav", 'wb')
-        wf.setnchannels(self.channels)
-        wf.setsampwidth(self.p.get_sample_size(self.sample_format))
-        wf.setframerate(self.fs)
-        wf.writeframes(b''.join(self.frames))
-        wf.close()
-
-        recorded_label = self.canvas.create_text(280, 280, text = "./recordings_for_training/recorded.wav", tag = "recorded_wav")
-        rect = self.canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2")
-        self.canvas.tag_lower(rect, recorded_label)
-
-        self.bro_button["state"] = "disabled"
-        self.stop_record_button["state"] = "disabled"
-        self.RECORDED = True
-
-    def record(self):
-        while self.isrecording:
-            data = self.stream.read(self.chunk)
-            self.frames.append(data)
-
-        self.frames = [] #to overwrite the old file instead of appending to it
 
 class Win3(Win1):
     def __init__(self, master):
