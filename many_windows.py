@@ -5,7 +5,7 @@ import argparse
 import sys
 
 from PIL import Image, ImageTk
-from amulet import train_autoencoder, detect_anomalies
+from amulet import train_autoencoder, detect_anomalies, set_threshold
 
 import threading
 import pyaudio
@@ -408,7 +408,6 @@ class Win3(Win1):
         self.threshold_scale.set(10) #set the default to the highest sensitivity
         self.canvas.create_window(315, 480, anchor = tk.NW, window = self.threshold_scale)
 
-
         # ---------- start training button ----------
         predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 60), Image.ANTIALIAS))
         self.canvas.predict_image = predict_image
@@ -477,7 +476,12 @@ class Win3(Win1):
 
             self.check_directory(output_path, create = True)
 
-            result = detect_anomalies(file_path, model_path, limit_path, scaler_path, output_path)
+            sensitivity = self.threshold_scale.get()
+            print("Anomaly threshold sensitivity: ", sensitivity)
+
+            anomaly_threshold = set_threshold(limit_path, sensitivity)
+
+            result = detect_anomalies(file_path, model_path, anomaly_threshold, scaler_path, output_path)
 
             if result == "good":
 

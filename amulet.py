@@ -312,7 +312,16 @@ def train_autoencoder(input_file, epochs, output_path):
 	print("Model saved to: " + model_name)
 
 
-def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path):
+def set_threshold(limit_path, sensitivity):
+	print("Setting threshold")
+
+	limit = joblib.load(limit_path)
+	print("Default anomaly threshold is ", str(limit))
+
+	
+
+
+def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, output_path):
 	"""
 	This function prepares the signal from wav file for the model and calculates
 	the MAE to detect anomalies.
@@ -325,8 +334,6 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path
 	model._make_predict_function()
 	print("Model is loaded in AMULET from ", str(model_path))
 
-	limit = joblib.load(limit_path)
-	print("Anomaly limit is ", str(limit))
 	scaler = joblib.load(scaler_path)
 	print("The scaler is loaded.")
 
@@ -358,7 +365,7 @@ def detect_anomalies(file_name, model_path, limit_path, scaler_path, output_path
 	scored = pd.DataFrame(index = df.index)
 	yhat = X.reshape(X.shape[0]*X.shape[1], X.shape[2])
 	scored["Loss_mae"] = np.mean(np.abs(yhat - preds), axis = 1)
-	scored["Threshold"] = limit
+	scored["Threshold"] = anomaly_threshold
 	scored["Anomaly"] = scored["Loss_mae"] > scored["Threshold"]
 
 	if True in scored['Anomaly'].unique():
