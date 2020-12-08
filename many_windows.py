@@ -207,9 +207,10 @@ class Win2(Win1):
         self.master.iconphoto(False, PhotoImage(file = 'static/img/train.png'))
 
         self.FILENAME = ""
-        self.RECORDED = False
         self.OUTPUTNAME = "./training_output"
         self.RECORDDIR = "./recordings_for_training"
+
+        self.RECORDED = False
 
         self.st = 1
         self.frames = []
@@ -352,6 +353,18 @@ class Win3(Win1):
         self.FILENAME = ""
         self.MODELNAME = "./example_model"
         self.OUTPUTNAME = "./prediction_output"
+        self.RECORDDIR = "./recordings_for_anomaly_detection"
+
+        self.RECORDED = False
+
+        self.st = 1
+        self.frames = []
+        self.chunk = 1024
+        self.sample_format = pyaudio.paInt16
+        self.channels = 2
+        self.fs = 44100
+
+        self.isrecording = False
 
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
         self.canvas.pack(expand = True)
@@ -368,8 +381,8 @@ class Win3(Win1):
         self.canvas.tag_lower(rect, dname_label)
 
         # ---------- browse file button ----------
-        bro_button = tk.Button(master = self.master, text = "Choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
+        self.bro_button = tk.Button(master = self.master, text = "Choose a wav file", command = self.browse_file)
+        bro_button_window = self.canvas.create_window(200, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
 
         # ---------- output dir button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
