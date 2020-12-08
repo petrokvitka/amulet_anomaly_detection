@@ -167,6 +167,7 @@ class Win1:
         t.start()
 
         self.start_record_button["state"] = "disabled"
+        self.stop_record_button["state"] = "normal"
 
     def stop_record_wav(self):
         self.check_directory(self.RECORDDIR, create = True)
@@ -235,6 +236,7 @@ class Win2(Win1):
         # ---------- stop record button ----------
         self.stop_record_button = tk.Button(master = self.master, text = "Stop record", command = self.stop_record_wav)
         stop_record_button_window = self.canvas.create_window(290, 240, anchor = tk.NW, window = self.stop_record_button)
+        self.stop_record_button["state"] = "disabled"
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
@@ -336,7 +338,7 @@ class Win2(Win1):
 
         self.bro_button["state"] = "normal"
         self.start_record_button["state"] = "normal"
-        self.stop_record_button["state"] = "normal"
+        self.stop_record_button["state"] = "disabled"
 
         print("Canvas is reseted!")
 
@@ -381,6 +383,7 @@ class Win3(Win1):
         # ---------- stop record button ----------
         self.stop_record_button = tk.Button(master = self.master, text = "Stop record", command = self.stop_record_wav)
         stop_record_button_window = self.canvas.create_window(290, 240, anchor = tk.NW, window = self.stop_record_button)
+        self.stop_record_button["state"] = "disabled"
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
@@ -528,7 +531,7 @@ class Win3(Win1):
 
         self.bro_button["state"] = "normal"
         self.start_record_button["state"] = "normal"
-        self.stop_record_button["state"] = "normal"
+        self.stop_record_button["state"] = "disabled"
 
         self.threshold_scale.set(self.THRESHOLD) #set the default to the highest sensitivity
 
