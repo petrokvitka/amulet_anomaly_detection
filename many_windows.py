@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, PhotoImage, messagebox
+from tkinter import filedialog, PhotoImage, messagebox, HORIZONTAL
 import os
 import argparse
 import sys
@@ -401,11 +401,19 @@ class Win3(Win1):
         rect = self.canvas.create_rectangle(0, 450, 550, 470, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
         self.canvas.tag_lower(rect, dname_label)
 
+        # ---------- set the threshold ----------
+        threshold_label = tk.Label(master = self.master, text = "Anomaly threshold \n (10 = high sensitivity)")
+        self.canvas.create_window(130, 485, anchor = tk.NW, window = threshold_label)
+        self.threshold_scale = tk.Scale(master = self.master, from_ = 0, to = 10, orient = HORIZONTAL)
+        self.threshold_scale.set(10) #set the default to the highest sensitivity
+        self.canvas.create_window(315, 480, anchor = tk.NW, window = self.threshold_scale)
+
+
         # ---------- start training button ----------
         predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 60), Image.ANTIALIAS))
         self.canvas.predict_image = predict_image
         predict_button = tk.Button(master = self.master, text = "", image = predict_image, command = self.predict_file)
-        predict_button_window = self.canvas.create_window(200, 480, anchor = tk.NW, window = predict_button)
+        predict_button_window = self.canvas.create_window(200, 540, anchor = tk.NW, window = predict_button)
 
         # ----------- reset button ----------
         reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
@@ -474,11 +482,11 @@ class Win3(Win1):
             if result == "good":
 
                 self.master.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-                self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.no_anomalies_image, tag = "no_anomalies")
+                self.canvas.create_image(130, 600, anchor = tk.NW, image = self.master.no_anomalies_image, tag = "no_anomalies")
 
             else:
                 self.master.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
-                self.canvas.create_image(130, 540, anchor = tk.NW, image = self.master.anomalies_image, tag = "anomalies")
+                self.canvas.create_image(130, 600, anchor = tk.NW, image = self.master.anomalies_image, tag = "anomalies")
 
     def clear_canvas(self):
         """
@@ -515,6 +523,8 @@ class Win3(Win1):
         self.bro_button["state"] = "normal"
         self.start_record_button["state"] = "normal"
         self.stop_record_button["state"] = "normal"
+
+        self.threshold_scale.set(10) #set the default to the highest sensitivity
 
         print("Canvas is reseted!")
 
