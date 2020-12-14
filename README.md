@@ -5,7 +5,7 @@ AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an applicati
 
 :exclamation: The DCGAN training and evaluation, as well as AMULET deployment within Docker container and in a web-browser were moved to the branche old_master to avoid confusion. Change to the old_master branche using the command `git checkout old_master` :exclamation:
 
-To be able to use AMULET, please download (use the button in the right up corner) or clone this repository, using the following command:
+To be able to use AMULET, please download (use the green button in the right up corner Code -> Download as ZIP -> unzip it on your computer) or clone this repository, using the following command:
 `git clone https://github.com/petrokvitka/amulet_anomaly_detection/`
 
 ### Train Autoencoder model
