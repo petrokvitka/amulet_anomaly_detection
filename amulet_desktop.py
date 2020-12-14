@@ -205,7 +205,7 @@ class Win2(Win1):
         self.master = master
         self.master.title("Model training")
         self.master.resizable(False, False)
-        self.master.iconphoto(False, PhotoImage(file = 'static/img/train.png'))
+        self.master.iconphoto(False, PhotoImage(file = 'static/img/train_favicon.png'))
 
         self.FILENAME = ""
         self.OUTPUTNAME = "./training_output"
@@ -350,7 +350,7 @@ class Win3(Win1):
         self.master = master
         self.master.title("Anomaly detection")
         self.master.resizable(False, False)
-        self.master.iconphoto(False, PhotoImage(file = 'static/img/detect.png'))
+        self.master.iconphoto(False, PhotoImage(file = 'static/img/detect_favicon.png'))
 
         self.FILENAME = ""
         self.MODELNAME = "./example_model"
