@@ -508,6 +508,8 @@ class Win3(Win1):
         self.MODELNAME = "./example_model"
         self.OUTPUTNAME = "./prediction_output"
 
+        self.RECORDED = False
+
         self.canvas.delete("default_modeldir")
         self.canvas.delete("shown_modeldir")
         self.canvas.delete("rect2")
