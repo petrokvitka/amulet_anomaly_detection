@@ -15,16 +15,18 @@ import sys
 
 from PIL import Image, ImageTk
 
-from amulet import detect_anomalies
+from amulet import train_autoencoder
 
 WIDTH, HEIGTH = 550, 1000
 FILENAME = ""
-MODELNAME = "./example_model"
-OUTPUTNAME = "./prediction_output"
+DIRNAME = ""
+OUTPUTNAME = "./training_output"
 
 parser = argparse.ArgumentParser(description="AMULET desktop")
-parser.add_argument('--model_directory', help = "Path to the directory where the trained model, scaler and anomaly limit are saved.")
+parser.add_argument('--input_directory', help = "Path to the directory with wavs for the training.")
+parser.add_argument('--input_file', help = "Path to the wav file for the training.")
 parser.add_argument('--output_directory', help = "Set a path to the output directory.")
+parser.add_argument('--epochs', type = int, help = "Set the number of epochs for the training.")
 args = parser.parse_args()
 
 def check_directory(directory, create = False):
@@ -52,30 +54,28 @@ def check_directory(directory, create = False):
 
 def select_model():
     """
-    This function gives a possibility to chose a directory with a trained model.
+    This function gives a possibility to chose a directory with wavs for the training.
     """
 
-    dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with a trained model")
+    dname = filedialog.askdirectory(initialdir = "./", title = "Select directory with wavs for the training")
 
     if dname:
 
-        print("You have chosen this directory with a trained model: ", dname)
+        print("You have chosen this directory for the training: ", dname)
         if check_directory(dname, create = False):
-            if not (os.path.exists(os.path.join(dname, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(dname, 'anomaly_threshold')) and os.path.exists(os.path.join(dname, 'scaler'))):
-                print("The provided directory ", dname, " does not contain a trained model and anomaly threshold and a corresponding scaler.")
-                messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
+            if not any(f.endswith('.wav') for f in os.listdir(dname)):
+                print("The provided directory ", dname, " does not contain a file in a wav format needed for the training.")
+                messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a file in a wav format needed for the training.".format(dname))
 
             else:
-                global MODELNAME
-                MODELNAME = dname
-                canvas.delete("shown_modeldir")
+                global DIRNAME
+                DIRNAME = dname
+                canvas.delete("shown_traindir")
                 canvas.delete("rect2")
-                canvas.delete("no_anomalies")
-                canvas.delete("anomalies")
+                canvas.delete("learning")
+                canvas.delete("ready")
 
-                canvas.delete("default_modeldir")
-
-                dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_modeldir")
+                dname_label = canvas.create_text(250, 280, text = dname, tag = "shown_traindir")
                 rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the modelname from the past
                 canvas.tag_lower(rect, dname_label)
 
@@ -113,8 +113,8 @@ def browse_file():
         FILENAME = fname
         canvas.delete("shown_fname")
         canvas.delete("rect")
-        canvas.delete("no_anomalies")
-        canvas.delete("anomalies")
+        canvas.delete("learning")
+        canvas.delete("ready")
 
         print("You have chosen this file: ", fname)
 
@@ -126,46 +126,59 @@ def browse_file():
         print("There was no file provided!")
         messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
-def predict_file():
+def train_model():
     """
     This function calls the AMULET to detect anomalies and finally shows
     that no anomalies were detected or that some anomalies were detected.
     """
+    epochs = entry_epochs.get()
+    if epochs == "":
+        print("There was no number of epochs provided!")
+        messagebox.showinfo("Error: No epochs number", "Please provide a number of epochs for the training!")
 
-    canvas.delete("no_anomalies")
-    canvas.delete("anomalies")
+    elif not epochs.isnumeric():
+        print("There was no number of epochs provided!")
+        messagebox.showinfo("Error: No epochs number", "Please provide a number of epochs for the training as an integer number!")
 
-    if FILENAME == "":
-        print("There was no file provided!")
-        messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
+    elif int(epochs) <= 0:
+        print("Epochs number can not be 0 or smaller!")
+        messagebox.showinfo("Error: False epochs number", "Please provide a number of epochs for the training as an integer number that is greater than 0!")
+
     else:
-        # ---------- check for anomalies ----------
-        if args.model_directory:
-            model_path = os.path.join(args.model_directory, 'sound_anomaly_detection.h5')
-            limit_path = os.path.join(args.model_directory, 'anomaly_threshold')
-            scaler_path = os.path.join(args.model_directory, 'scaler')
+        print("Number of epochs is:", epochs)
+
+        canvas.delete("learning")
+        canvas.delete("ready")
+
+        if (FILENAME == "" and DIRNAME == ""):
+            print("There was no data for the training provided!")
+            messagebox.showinfo("Error: No wav file", "Please chose a wav file or a directory with wav files first!")
         else:
-            model_path = os.path.join(MODELNAME, 'sound_anomaly_detection.h5')
-            limit_path = os.path.join(MODELNAME, 'anomaly_threshold')
-            scaler_path = os.path.join(MODELNAME, 'scaler')
+            root.training_image = ImageTk.PhotoImage(Image.open("static/img/robot_learning.png").resize((300, 300), Image.ANTIALIAS))
+            canvas.create_image(130, 540, anchor = tk.NW, image = root.training_image, tag = "learning")
 
-        if args.output_directory:
-            output_path = args.output_directory
-        else:
-            output_path = OUTPUTNAME
+            if args.input_directory:
+                dir_path = args.input_directory
+            else:
+                dir_path = DIRNAME
 
-        check_directory(output_path, create = True)
+            if args.input_file:
+                file_path = args.input_file
+            else:
+                file_path = FILENAME
 
-        result = detect_anomalies(FILENAME, model_path, limit_path, scaler_path, output_path)
+            if args.output_directory:
+                output_path = args.output_directory
+            else:
+                output_path = OUTPUTNAME
 
-        if result == "good":
+            check_directory(output_path, create = True)
 
-            root.no_anomalies_image = ImageTk.PhotoImage(Image.open("static/img/no_anomalies.png").resize((300, 300), Image.ANTIALIAS))
-            canvas.create_image(130, 500, anchor = tk.NW, image = root.no_anomalies_image, tag = "no_anomalies")
+            train_autoencoder(file_path, dir_path, int(epochs), output_path)
 
-        else:
-            root.anomalies_image = ImageTk.PhotoImage(Image.open("static/img/anomalies_transparent.png").resize((300, 300), Image.ANTIALIAS))
-            canvas.create_image(130, 500, anchor = tk.NW, image = root.anomalies_image, tag = "anomalies")
+            canvas.delete("learning")
+            root.ready_image = ImageTk.PhotoImage(Image.open("static/img/ready.png").resize((300, 300), Image.ANTIALIAS))
+            canvas.create_image(130, 540, anchor = tk.NW, image = root.ready_image, tag = "ready")
 
 def clear_canvas():
     """
@@ -177,28 +190,22 @@ def clear_canvas():
     global FILENAME
     FILENAME = ""
 
-    args.model_directory = ""
-    global MODELNAME
-    MODELNAME = "./example_model"
+    global DIRNAME
+    DIRNAME = ""
 
     args.output_directory = ""
     global OUTPUTNAME
-    OUTPUTNAME = "./prediction_output"
+    OUTPUTNAME = "./training_output"
 
-    canvas.delete("default_modeldir")
-    canvas.delete("shown_modeldir")
+    canvas.delete("shown_traindir")
     canvas.delete("rect2")
     canvas.delete("shown_fname")
     canvas.delete("rect")
     canvas.delete("default_output")
     canvas.delete("shown_output")
     canvas.delete("rect3")
-    canvas.delete("no_anomalies")
-    canvas.delete("anomalies")
-
-    dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
-    rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
-    canvas.tag_lower(rect, dname_label)
+    canvas.delete("learning")
+    canvas.delete("ready")
 
     oname_label = canvas.create_text(250, 400, text = OUTPUTNAME, tag = "default_output")
     rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "white", tag = "rect3") #add a box to hide the filename from the past
@@ -208,13 +215,21 @@ def clear_canvas():
 
 
 # ---------- check input and output directories ----------
-if args.model_directory:
+if args.input_directory:
     # check if the provided directory exists
-    if check_directory(args.model_directory, create = False):
+    if check_directory(args.input_directory, create = False):
         # check if there is a trained model, anomaly threshold and a scaler in the provided directory
-        if not (os.path.exists(os.path.join(args.model_directory, 'sound_anomaly_detection.h5')) and os.path.exists(os.path.join(args.model_directory, 'anomaly_threshold')) and os.path.exists(os.path.join(args.model_directory, 'scaler'))):
-            print("The provided directory ", args.model_directory, " does not contain a trained model and anomaly threshold and a corresponding scaler. The exit is forced!")
+        if not any(f.endswith('.wav') for f in os.listdir(args.input_directory)):
+            print("The provided directory ", args.input_directory, " does not contain wav files needed for the training. The exit is forced!")
             sys.exit()
+        else:
+            print("The provided input directory does not exist.")
+            sys.exit()
+
+if args.input_file:
+    if os.path.exist(args.input_file) and args.input_file.endswith('.wav'):
+        print("Provided file does not exist or is not in a wav format.")
+        sys.exit()
 
 if args.output_directory:
     check_directory(args.output_directory, create = True)
@@ -230,26 +245,18 @@ root.iconphoto(False, PhotoImage(file = 'static/img/amulet_favicon.png'))
 # ---------- background canvas ----------
 canvas = tk.Canvas(root, bg = "white", height = HEIGTH, width = WIDTH)
 canvas.pack(expand = True)
-background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_handy_logo.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
+background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_training.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
 canvas.background = background_image #keep a reference in case this code is put in a function
 bg = canvas.create_image(0, 0, anchor = tk.NW, image = background_image)
 
 
-# ---------- browse model directory button ----------
-model_button = tk.Button(master = root, text = "Choose a directory with the trained model", command = select_model)
-model_button_window = canvas.create_window(120, 240, anchor = tk.NW, window = model_button)
-
-if args.model_directory:
-    dname_label = canvas.create_text(250, 280, text = args.model_directory, tag = "default_modeldir")
-else:
-    dname_label = canvas.create_text(250, 280, text = MODELNAME, tag = "default_modeldir")
-
-rect = canvas.create_rectangle(0, 270, 550, 290, fill = "white", outline = "white", tag = "rect2") #add a box to hide the filename from the past
-canvas.tag_lower(rect, dname_label)
+# ---------- browse input directory button ----------
+inputdir_button = tk.Button(master = root, text = "Choose a directory with wav files", command = select_model)
+inputdir_button_window = canvas.create_window(145, 240, anchor = tk.NW, window = inputdir_button)
 
 
 # ---------- browse file button ----------
-bro_button = tk.Button(master = root, text = "Choose a wav file", command = browse_file)
+bro_button = tk.Button(master = root, text = "Or choose a wav file", command = browse_file)
 bro_button_window = canvas.create_window(200, 300, anchor = tk.NW, window = bro_button) #xpos, ypos
 
 
@@ -266,10 +273,17 @@ rect = canvas.create_rectangle(0, 390, 550, 410, fill = "white", outline = "whit
 canvas.tag_lower(rect, oname_label)
 
 
-# ---------- predict anomalies button ----------
-predict_image = ImageTk.PhotoImage(Image.open("static/img/button_detect.png").resize((145, 60), Image.ANTIALIAS))
-predict_button = tk.Button(master = root, text = "", image = predict_image, command = predict_file)
-predict_button_window = canvas.create_window(200, 420, anchor = tk.NW, window = predict_button)
+# ---------- entry epochs number ----------
+epochs_label = tk.Label(master = root, text = "Number of epochs:")
+canvas.create_window(200, 420, window = epochs_label)
+entry_epochs = tk.Entry(master = root)
+canvas.create_window(350, 420, window = entry_epochs)#, tag = "epochs_number")
+
+
+# ---------- start training button ----------
+predict_image = ImageTk.PhotoImage(Image.open("static/img/button_start.png").resize((145, 60), Image.ANTIALIAS))
+predict_button = tk.Button(master = root, text = "", image = predict_image, command = train_model)
+predict_button_window = canvas.create_window(200, 440, anchor = tk.NW, window = predict_button)
 
 
 # ----------- reset button ----------
