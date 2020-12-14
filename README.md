@@ -5,6 +5,9 @@ AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an applicati
 
 :exclamation: The DCGAN training and evaluation, as well as AMULET deployment within Docker container and in a web-browser were moved to the branche old_master to avoid confusion. Change to the old_master branche using the command `git checkout old_master` :exclamation:
 
+To be able to use AMULET, please download (use the button in the right up corner) or clone this repository, using the following command:
+`git clone https://github.com/petrokvitka/amulet_anomaly_detection/`
+
 ### Train Autoencoder model
 To train the autoencoder model, the installation of [Anaconda](https://docs.anaconda.com/anaconda/install/) is required.
 The first step to train the autoencoder model, is to create and make sure to activate the conda environment for the training:
@@ -31,23 +34,17 @@ Current version was trained with the motor at 500 rotations/min and 100 N for 25
 
 ### Installation and usage as a Desktop application
 
-To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-env.yml) using the command:
-`conda env create -f amulet-env.yml`
+To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.com/anaconda/install/) first. If you are on Windows, run the Anaconda Prompt as administrator. Next, create an environment from the provided [file](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-desktop-windows.yml) using the following command:
+`conda env create -f amulet-desktop-windows.yml`
 
 Activate this environment with the command:
-`conda activate amulet-env`
-
-Or if you are using Windows:
-`conda env create -f amulet-env-windows.yml`
-
-`conda activate amulet-env-windows`
+`conda activate amulet-desktop-windows`
 
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
 `python amulet_desktop.py`
 
-By default the provided [example_model](./example_model) is used, but this could be changed using the parameter `--model_directory` like so:
-`python amulet_desktop.py --model_directory ./example_model`
+By default the provided [example_model](./example_model) is used, but this could be changed ............................
 
 A new window will appear. You can browse for a wav file and check it for anomalies. 
 
-:exclamation: Please note that clicking the "Reset" button at the right bottom of the screen is needed after each run for anomaly detection.
+:exclamation: Please note that clicking the "Reset" button at the right bottom of the screen is needed.
