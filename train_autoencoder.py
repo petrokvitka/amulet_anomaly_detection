@@ -43,10 +43,10 @@ import librosa.display
 
 from scipy import stats #for normal distribution test
 
-import scipy.io as sio
+#import scipy.io as sio
 import pywt
-import scipy.stats
-from collections import defaultdict, Counter
+#import scipy.stats
+#from collections import defaultdict, Counter
 
 seed(10)
 tf.random.set_seed(10)

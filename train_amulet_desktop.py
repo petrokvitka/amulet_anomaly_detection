@@ -288,7 +288,7 @@ predict_button_window = canvas.create_window(200, 440, anchor = tk.NW, window = 
 
 # ----------- reset button ----------
 reset_image = ImageTk.PhotoImage(Image.open("static/img/reset2.png").resize((100, 60), Image.ANTIALIAS))
-clear_button = tk.Button(master = root, text = "", image = reset_image, command=clear_canvas)
+clear_button = tk.Button(master = root, text = "", image = reset_image, command = clear_canvas)
 clear_button_window = canvas.create_window(235, 930, anchor = tk.NW, window = clear_button)
 
 # ---------- run tkinter desktop app ----------
