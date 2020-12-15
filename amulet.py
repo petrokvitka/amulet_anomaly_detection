@@ -389,8 +389,10 @@ def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, outp
 
 	labels = ax.get_xticks()
 
+	print("scored index values", scored.index.values)
+
 	#get the index values from the dataset and cut to get the second and 2 values after comma
-	new_labels = [x.split("-")[0][:-13] for x in scored.index.values]
+	new_labels = [x.split("-")[0] for x in scored.index.values]
 	new_labels[0] = 0.0
 
 	print("final plot labels", new_labels)
