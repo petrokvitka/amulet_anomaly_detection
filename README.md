@@ -7,10 +7,11 @@ AMULET - AnoMaly detection with aUtoencoder for eLEctric moTor - is an applicati
 
 To be able to use AMULET, please download (use the green button in the right up corner Code -> Download as ZIP -> unzip it on your computer) or clone this repository, using the following command:
 `git clone https://github.com/petrokvitka/amulet_anomaly_detection/`
+Next, change into this directory `cd amulet_anomaly_detection`.
 
 ### Train Autoencoder model
 To train the autoencoder model, the installation of [Anaconda](https://docs.anaconda.com/anaconda/install/) is required.
-The first step to train the autoencoder model, is to create and make sure to activate the conda environment for the training:
+The first step in training of the autoencoder model, is to create and make sure to activate the conda environment for the training:
 `conda env create -f train_autoencoder.yml`
 
 Activation of the conda environment is possible with the following command:
@@ -40,18 +41,20 @@ To use AMULET as a Desktop App, please install [Anaconda](https://docs.anaconda.
 Activate this environment with the command:
 `conda activate amulet-desktop-windows`
 
+If you are on Linux, please use the [amulet-desktop-linux.yml](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-desktop-linux.yml) instead.
+
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
-`python amulet_desktop.py`
+`python amulet_desktop.py`. 
 
 You can ignore the warnings, if there are any.
-A starting screen will appear. Here you can get to know the advantages of the AMULET and choose one of the two further possibilities: either to train a new model, or to detect an anomaly using an already trained model. Please click the corresponding button to go to the next step.
+A starting screen will appear. Here you can get to know the advantages of the AMULET and choose one of two further possibilities: either to train a new model, or to detect an anomaly using an already trained model. Please click the corresponding button to go to the next step.
 
 #### Start a training of a new model
 Let's assume you would like to TRAIN a new model first. Click on the TRAIN button. A new window will appear:
 ![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/static/img/example_training.png)
 
 You can choose to record a new audio file or use an existing one in WAV format. 
-:exclamation: If you want to record an audio file, please make sure that there is a working microphone attached to your computer! The recorded file will be saved to a directory "./recordings_for_training/recorded.wav" and will be overwritten each time you start a new recording for the training.
+:exclamation: If you want to record an audio file, please make sure that there is a working microphone attached to your computer! The recorded file will be saved to the directory "./recordings_for_training/recorded.wav" and will be overwritten each time you start a new recording for the training.
 
 By default the output directory is set to "./training_output". If you want to change the output directory, you can choose an existing one by clicking on the button "Choose an output directory".
 ![alt text](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/static/img/example_training_create_dir.png)
@@ -72,7 +75,7 @@ The quality of the training can be evaluated by looking on the Loss_mae.png plot
 :exclamation: Click the "RESET" button any time you want AMULET to come to the starting appearance.
 
 #### Detect anomalies
-Now that you have a trained model, you could start to DETECT THE ANOMALIES. Close the window for training, you do not need it for the anomalies detection. After clicking the "DETECT" button on the starting screen, a new window will appear. Similar to the window you already get to know for the training, you have a possibility to record an audio file or to choose an existing one in WAV format. For the testing purposes, there are a [recording of an intact bearing](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/good.wav) and a [recording of unexpected motor stops](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/test_1200_200.wav). 
+Now that you have a trained model, you could start to DETECT THE ANOMALIES. Close the window for training, you do not need it for the anomalies detection. After clicking the "DETECT" button on the starting screen, a new window will appear. Similar to the window you already get to know for the training, you have a possibility to record an audio file or to choose an existing one in WAV format. The recorded audio file will be saved to "./recordings_for_anomaly_detection/recorded.wav", and will be overwritten each time you start a new recording. For the testing purposes, there are a [recording of an intact bearing](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/good.wav) and a [recording of unexpected motor stops](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/test_1200_200.wav). 
 
 Also the same button as in the Training window is used to "Choose an output directory". By default, a new directory "./prediction_output" will be created. If there is already such directory on your system, this will be overwritten.
 
