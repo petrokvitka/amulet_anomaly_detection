@@ -44,7 +44,7 @@ Activate this environment with the command:
 If you are on Linux, please use the [amulet-desktop-linux.yml](https://github.com/petrokvitka/amulet_anomaly_detection/blob/master/amulet-desktop-linux.yml) instead.
 
 Now you are ready to run the AMULET as a Desktop App. Use the command inside the activated environment:
-`python amulet_desktop.py`. 
+`python amulet_desktop_windows.py`. 
 
 You can ignore the warnings, if there are any.
 A starting screen will appear. Here you can get to know the advantages of the AMULET and choose one of two further possibilities: either to train a new model, or to detect an anomaly using an already trained model. Please click the corresponding button to go to the next step.
