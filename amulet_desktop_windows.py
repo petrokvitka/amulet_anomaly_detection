@@ -164,7 +164,7 @@ class Win1:
         for i in range(self.p.get_device_count()):
                 dev = self.p.get_device_info_by_index(i)
                 print(i, dev['name'], dev['maxInputChannels'])
-                if dev['name'].startswith("Microphone"):
+                if dev['name'].startswith("Mikrofon"):
                         idi = i
                         self.channels = dev['maxInputChannels']
                         break
