@@ -97,15 +97,17 @@ There are several issues that might occure if you install AMULET. Please consult
 
 ## numpy.linalg.LinAlgError: SVD did not converge
 This error occurs, if the MKL-package is not up-to-date or if there are some uncertainities in other packages versions, such as tensorflow, numpy and numpy-base. To solve this issue, please follow next steps.
+CLOSE THE AMULET DESKTOP APPLICATION
 1. Make sure that your Anaconda is up-to-date. If not so, [update it](https://docs.anaconda.com/anaconda/install/update-version/).
 2. Now activate the environment `conda activate amulet-desktop-windows`.
 3. Inside the environment run the command `conda update mkl` and confirm the update.
 4. Look at the packages installed inside the environment with `conda list`. We want to have mkl 2019.4, mkl-service 2.3.0, mkl_fft 1.0.15 and mkl_random 1.1.0. 
-5. Please find the numpy-base package inside the environment, using `conda list`. If the version of the numpy-base is not 1.19.2, run the followint command inside the activated environment: `install numpy-base=1.19.2`.
+5. Please find the numpy-base package inside the environment, using `conda list`. If the version of the numpy-base is not 1.19.2, run the followint command inside the activated environment: `conda install numpy-base=1.19.2`.
 6. The script amulet_desktop_windows.py should run without problems now.
 
 ## OSError: [Errno -9998] Invalid number of channels
 This error occurs, if AMULET tries to use the default number of channels (which is 2) when hearing to your microphone. To solve this issue:
+CLOSE THE AMULET DESKTOP APPLICATION
 1. Make sure you are running amulet_desktop_windows.py and not amulet_desktop_linux.py
 2. Make sure a microphone is connected to your computer.
 3. Check Settings -> Privacy -> Microphone to allow AMULET (Python, Anaconda) the usage of the microphone.
@@ -113,6 +115,7 @@ This error occurs, if AMULET tries to use the default number of channels (which 
 
 ## UnboundLocalError: local variable 'idi' referenced before assignment
 This error occurs, if there is no microphone connected to the computer.
+CLOSE THE AMULET DESKTOP APPLICATION
 1. Make sure there is a working microphone connected in a right way to your computer.
 2. Chek the privacy settings for Microphone on your system.
 3. If you are on Linux, make sure you are running amulet_desktop_linux.py and not amulet_desktop_windows.py
