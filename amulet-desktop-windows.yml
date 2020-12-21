@@ -91,7 +91,7 @@ dependencies:
   - mkl_fft=1.0.15=py37h14836fe_0
   - mkl_random=1.1.0=py37h675688f_0
   - msys2-conda-epoch=20160418=1
-  - numpy-base=1.19.1=py37ha3acd2a_0
+  - numpy-base=1.19.2=py37ha3acd2a_0
   - oauthlib=3.1.0=py_0
   - olefile=0.46=py37_0
   - openssl=1.1.1h=he774522_0
