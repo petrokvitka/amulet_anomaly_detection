@@ -125,5 +125,3 @@ CLOSE THE AMULET DESKTOP APPLICATION
 1. Make sure there is a working microphone connected in a right way to your computer.
 2. Chek the privacy settings for Microphone on your system.
 3. If you are on Linux, make sure you are running amulet_desktop_linux.py and not amulet_desktop_windows.py
-
-
