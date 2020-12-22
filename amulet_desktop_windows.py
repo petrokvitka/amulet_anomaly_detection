@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+
+"""
+This script creates a Tkinter desktop app for Windows.
+There are three different windows possible (one starting window,
+one for training and one for anomaly detection). Please note that closing of
+the starting window will cause termination of all processes running in any of
+the other windows. Please also be patient during calculations and do not click
+around the disabled buttons in a window.
+
+@author: Anastasiia Petrova
+@contact: petrokvitka@gmail.com
+
+"""
+
 import tkinter as tk
 from tkinter import filedialog, PhotoImage, messagebox, HORIZONTAL
 import os
@@ -13,7 +28,7 @@ import wave
 
 WIDTH, HEIGTH = 550, 1000
 
-class Win1:
+class Win1: # Main window
     """
     This is the main window for AMULET to chose to train a model or to detect anomalies
     using an already trained model.
@@ -32,6 +47,9 @@ class Win1:
 
 
     def show_widgets(self):
+        """
+        Here the backgound image and images for the buttons are loaded.
+        """
         self.canvas = tk.Canvas(self.master, bg = "white", height = HEIGTH, width = WIDTH)
         self.canvas.pack(expand = True)
         background_image = ImageTk.PhotoImage(Image.open("static/img/amulet_background_title.png").resize((WIDTH, HEIGTH), Image.ANTIALIAS))
@@ -41,20 +59,14 @@ class Win1:
         # ---------- train button ----------
         train_image = ImageTk.PhotoImage(Image.open("static/img/train.png").resize((150, 150), Image.ANTIALIAS))
         self.canvas.train_image = train_image
-        train_button = tk.Button(self.master, text = "", image = train_image, command = lambda: self.new_window(Win2)) # image = train_image, lambda: self.new_window(Win2))
+        train_button = tk.Button(self.master, text = "", image = train_image, command = lambda: self.new_window(Win2))
         train_button_window = self.canvas.create_window(90, 800, anchor = tk.NW, window = train_button)
 
         # ---------- detect button ----------
         detect_image = ImageTk.PhotoImage(Image.open("static/img/detect.png").resize((150, 150), Image.ANTIALIAS))
         self.canvas.detect_image = detect_image
-        detect_button = tk.Button(self.master, text = "", image = detect_image, command = lambda: self.new_window(Win3)) # image = train_image, lambda: self.new_window(Win2))
+        detect_button = tk.Button(self.master, text = "", image = detect_image, command = lambda: self.new_window(Win3))
         detect_button_window = self.canvas.create_window(300, 800, anchor = tk.NW, window = detect_button)
-
-    def create_button(self, text, _class):
-        "Button that creates a new window"
-        tk.Button(
-            self.frame, text=text,
-            command=lambda: self.new_window(_class)).pack()
 
     def new_window(self, _class):
         global win2, win3
@@ -104,7 +116,6 @@ class Win1:
     def choose_output_dir(self):
         """
         This function gives a possibility to set an output directory.
-
         """
         oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
 
@@ -126,7 +137,6 @@ class Win1:
         This function helps a user to chose a wav file from the computer.
         The name of the chosen file will show up under the button.
         """
-
         fname = filedialog.askopenfilename(initialdir = "./", title = "Select File", filetypes = (("Audio Files", "*.wav"), ("All Files", "*.*")))
 
         if fname:
@@ -151,36 +161,55 @@ class Win1:
             messagebox.showinfo("Error: No wav file", "Please chose a wav file first!")
 
     def start_record_wav(self):
+        """
+        This function checks for the possible devices for the recording and
+        starts an audio record.
+        """
         print("Start recording")
-
-        self.bro_button["state"] = "disabled"
-
-        self.canvas.delete("recorded_wav")
-        self.canvas.delete("rect2")
-        self.canvas.delete("ready")
 
         self.p = pyaudio.PyAudio()
 
+        idi = ""
+
         for i in range(self.p.get_device_count()):
-                dev = self.p.get_device_info_by_index(i)
-                print(i, dev['name'], dev['maxInputChannels'])
-                if dev['name'].startswith("Mikrofon"):
-                        idi = i
-                        self.channels = dev['maxInputChannels']
-                        break
-	
-        #self.stream = self.p.open(format = self.sample_format, channels = 1, rate = self.fs, frames_per_buffer = self.chunk, input = True)
-        #self.stream = self.p.open(format = pyaudio.paInt16, channels = self.channels, rate = 44100, frames_per_buffer = 1024, input = True, input_device_index = idi)
-        self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True, input_device_index = idi)
-        self.isrecording = True
+            dev = self.p.get_device_info_by_index(i)
+            if dev['name'].startswith("Mikrofon"):
+                idi = i
+                self.channels = dev['maxInputChannels']
+                print("found", i, dev['name'], dev['maxInputChannels'])
+                break
+            elif dev['name'].startswith("Microphone"):
+                idi = i
+                self.channels = dev['maxInputChannels']
+                print("found", i, dev['name'], dev['maxInputChannels'])
+                break
 
-        t = threading.Thread(target = self.record)
-        t.start()
+        # check if any device was found
+        if not idi:
+            print("No microphone was found!")
+            # do nothing
 
-        self.start_record_button["state"] = "disabled"
-        self.stop_record_button["state"] = "normal"
+        else: # otherwise start recording
+            self.bro_button["state"] = "disabled"
+
+            self.canvas.delete("recorded_wav")
+            self.canvas.delete("rect2")
+            self.canvas.delete("ready")
+
+            self.stream = self.p.open(format = self.sample_format, channels = self.channels, rate = self.fs, frames_per_buffer = self.chunk, input = True, input_device_index = idi)
+            self.isrecording = True
+
+            t = threading.Thread(target = self.record)
+            t.start()
+
+            self.start_record_button["state"] = "disabled"
+            self.stop_record_button["state"] = "normal"
 
     def stop_record_wav(self):
+        """
+        This function checks for the output directory stops the recording and
+        saves it to the corresponding directory.
+        """
         self.check_directory(self.RECORDDIR, create = True)
 
         print("Stop recording")
@@ -188,9 +217,6 @@ class Win1:
         record_file = "{}/recorded.wav".format(self.RECORDDIR)
         print("Recording complete, writing to the file {}".format(record_file))
         wf = wave.open(record_file, 'wb')
-        #wf.setnchannels(1)
-        #wf.setsampwidth(self.p.get_sample_size(pyaudio.paInt16))
-        #wf.setframerate(44100)
         wf.setnchannels(self.channels)
         wf.setsampwidth(self.p.get_sample_size(self.sample_format))
         wf.setframerate(self.fs)
@@ -205,6 +231,9 @@ class Win1:
         self.RECORDED = True
 
     def record(self):
+        """
+        This function creates chunks of the data stream and saves them to an array.
+        """
         while self.isrecording:
             data = self.stream.read(self.chunk)
             self.frames.append(data)
@@ -212,7 +241,7 @@ class Win1:
         self.frames = [] #to overwrite the old file instead of appending to it
 
 
-class Win2(Win1):
+class Win2(Win1): # Training
 
     def __init__(self, master):
 
@@ -231,7 +260,8 @@ class Win2(Win1):
         self.frames = []
         self.chunk = 1024
         self.sample_format = pyaudio.paInt16
-        self.channels = 2
+        self.channels = 2class Win2(Win1): # Training
+
         self.fs = 44100
 
         self.isrecording = False
@@ -254,7 +284,7 @@ class Win2(Win1):
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button)
 
         # ---------- create/chose output directory button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
@@ -328,9 +358,7 @@ class Win2(Win1):
     def clear_canvas(self):
         """
         This function awakes after clicking on the "Reset" button and clears
-        everything for the next run of AMULET.
-        Note that this function also resets the directory of the trained model
-        to the default directory ./example_model.
+        everything for the next run of AMULET..
         """
 
         self.FILENAME = ""
@@ -357,8 +385,7 @@ class Win2(Win1):
         print("Canvas is reseted!")
 
 
-
-class Win3(Win1):
+class Win3(Win1): # Anomaly detection
     def __init__(self, master):
 
         self.master = master
@@ -401,7 +428,7 @@ class Win3(Win1):
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button)
 
         # ---------- output dir button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
@@ -455,7 +482,6 @@ class Win3(Win1):
                     messagebox.showinfo("Error: false directory!", "The provided directory '{}' does not contain a trained model and anomaly threshold and a corresponding scaler.".format(dname))
 
                 else:
-                    #global MODELNAME
                     self.MODELNAME = dname
                     self.canvas.delete("shown_modeldir")
                     self.canvas.delete("rect2")
@@ -547,7 +573,7 @@ class Win3(Win1):
         self.start_record_button["state"] = "normal"
         self.stop_record_button["state"] = "disabled"
 
-        self.threshold_scale.set(self.THRESHOLD) #set the default to the highest sensitivity
+        self.threshold_scale.set(self.THRESHOLD) #set the default to the highest sensitivity by default
 
         print("Canvas is reseted!")
 

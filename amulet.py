@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This is the main code for AMULET anomaly detection.
+This is the main code for AMULET desktop app training and anomaly detection.
 
 @author: Anastasiia Petrova
 @contact: petrokvitka@gmail.com
@@ -32,7 +32,7 @@ register_matplotlib_converters()
 seed(10)
 tf.random.set_seed(10)
 
-print("imports are ready")
+print("AMULET: imports are ready")
 
 # global variables and settings
 timesteps = 1
@@ -73,11 +73,6 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 				my_row.append(my_statistical_function(coeffs[j][i : i + step], fun_name))
 			one_row = pd.DataFrame([my_row])
 
-			#new_wav = wav[i : i + step]
-			#coeffs, freqs = pywt.cwt(new_wav, scales, wavelet = "morl")
-			#plot_wavelet(coeffs, sr)
-			#one_row = pd.DataFrame([[my_statistical_function(x, fun_name) for x in coeffs]])
-
 			row_name = str(i / sr) + "-" + str((i + step)/sr)
 			one_row.index = [row_name]
 
@@ -115,13 +110,6 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 				mel_s = librosa.feature.melspectrogram(new_wav)
 				mfcc = librosa.feature.mfcc(new_wav, dct_type = 3)
 
-				#for comparison plot
-				wavs.append(new_wav)
-				ffts.append(fft)
-				ss.append(s)
-				mel_ss.append(mel_s)
-				mfccs.append(mfcc)
-
 				one_row = pd.DataFrame([[my_statistical_function(new_wav, fun_name), my_statistical_function(fft, fun_name), my_statistical_function(s, fun_name), my_statistical_function(mel_s, fun_name), my_statistical_function(mfcc, fun_name)]])
 				row_name = str(round(i / sr, 1)) + "-" + str(round((i + step)/sr, 1))
 				one_row.index = [row_name]
@@ -131,8 +119,6 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 				i += step
 
 			merged_data.columns = ["wav", "fft", "spectrogram", "mel", "mfcc"]
-
-			#compare(wavs[0], ffts[0], ss[0], mel_ss[0], mfccs[0], wavs[1], ffts[1], ss[1], mel_ss[1], mfccs[1])
 
 		else:
 
@@ -148,7 +134,6 @@ def read_wav(filename, seconds, fft_last = False, hamming = False, wavelet = Fal
 
 			rows = floor(len(wav)/(sr*seconds))
 			step = floor(spectrogram_length/rows)
-			#print(rows, step)
 
 			i = 0
 			sec = 0
@@ -199,7 +184,7 @@ def prepare_reshape(X, timesteps):
 
 	# ---------- check the number of samples for training ----------
 	if X.shape[0] <= 2:
-		print("There are 2 or less samples in the resulting dataframe. Consider setting the parameter --divide_input_sec smaller. The exit is forced!")
+		print("There are 2 or less samples in the resulting dataframe. The exit is forced!")
 		sys.exit()
 
 	return X
@@ -313,6 +298,16 @@ def train_autoencoder(input_file, epochs, output_path):
 
 
 def set_threshold(limit_path, sensitivity, default_threshold):
+	"""
+	This function reads the default anomaly threshold that was set right after
+	the training of the corresponding model, or it calculates a procentual step
+	to set the sensitivity of the anomaly threshold higher or lower.
+	:param limit_path: the path to the default threshold
+	:param sensitivity: the sensitivity grad set by the user in the desktop app
+	:param default_threshold: the default sensitivity (currently is set to 8 in
+	the desktop app)
+	:returns: newly calculated or the default anomaly threshold
+	"""
 	print("Setting threshold")
 
 	limit = joblib.load(limit_path)
@@ -331,13 +326,14 @@ def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, outp
 	This function prepares the signal from wav file for the model and calculates
 	the MAE to detect anomalies.
 	:param file_name: name of wav file to read and process
-	:returns: dictionary in suitable for JSONify format with found anomalies
+	:returns: "good" if no anomalies were detected, "defect" if there were some
+	anomalies detected
 	"""
 
 	# First, load the model, scaler and anomaly threshold
 	model = load_model(model_path)
 	model._make_predict_function()
-	print("Model is loaded in AMULET from ", str(model_path))
+	print("Model is loaded to AMULET from ", str(model_path))
 
 	scaler = joblib.load(scaler_path)
 	print("The scaler is loaded.")
@@ -388,14 +384,11 @@ def detect_anomalies(file_name, model_path, anomaly_threshold, scaler_path, outp
 	ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
 
 	labels = ax.get_xticks()
+	#print("scored index values", scored.index.values)
 
-	print("scored index values", scored.index.values)
-
-	#get the index values from the dataset and cut to get the second and 2 values after comma
+	#get the index values from the dataset and cut to get the second
 	new_labels = [x.split("-")[0] for x in scored.index.values]
 	new_labels[0] = 0.0
-
-	print("final plot labels", new_labels)
 
 	ax.set_xticklabels(new_labels)
 

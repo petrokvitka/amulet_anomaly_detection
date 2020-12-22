@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+
+"""
+This script creates a Tkinter desktop app for Linux (tested on Ubuntu 20.04).
+There are three different windows possible (one starting window,
+one for training and one for anomaly detection). Please note that closing of
+the starting window will cause termination of all processes running in any of
+the other windows. Please also be patient during calculations and do not click
+around the disabled buttons in a window.
+
+@author: Anastasiia Petrova
+@contact: petrokvitka@gmail.com
+
+"""
+
 import tkinter as tk
 from tkinter import filedialog, PhotoImage, messagebox, HORIZONTAL
 import os
@@ -13,7 +28,7 @@ import wave
 
 WIDTH, HEIGTH = 550, 1000
 
-class Win1:
+class Win1: # Main window
     """
     This is the main window for AMULET to chose to train a model or to detect anomalies
     using an already trained model.
@@ -41,20 +56,14 @@ class Win1:
         # ---------- train button ----------
         train_image = ImageTk.PhotoImage(Image.open("static/img/train.png").resize((150, 150), Image.ANTIALIAS))
         self.canvas.train_image = train_image
-        train_button = tk.Button(self.master, text = "", image = train_image, command = lambda: self.new_window(Win2)) # image = train_image, lambda: self.new_window(Win2))
+        train_button = tk.Button(self.master, text = "", image = train_image, command = lambda: self.new_window(Win2))
         train_button_window = self.canvas.create_window(90, 800, anchor = tk.NW, window = train_button)
 
         # ---------- detect button ----------
         detect_image = ImageTk.PhotoImage(Image.open("static/img/detect.png").resize((150, 150), Image.ANTIALIAS))
         self.canvas.detect_image = detect_image
-        detect_button = tk.Button(self.master, text = "", image = detect_image, command = lambda: self.new_window(Win3)) # image = train_image, lambda: self.new_window(Win2))
+        detect_button = tk.Button(self.master, text = "", image = detect_image, command = lambda: self.new_window(Win3))
         detect_button_window = self.canvas.create_window(300, 800, anchor = tk.NW, window = detect_button)
-
-    def create_button(self, text, _class):
-        "Button that creates a new window"
-        tk.Button(
-            self.frame, text=text,
-            command=lambda: self.new_window(_class)).pack()
 
     def new_window(self, _class):
         global win2, win3
@@ -104,7 +113,6 @@ class Win1:
     def choose_output_dir(self):
         """
         This function gives a possibility to set an output directory.
-
         """
         oname = filedialog.askdirectory(initialdir = "./", title = "Select or create a directory for output files")
 
@@ -198,7 +206,7 @@ class Win1:
         self.frames = [] #to overwrite the old file instead of appending to it
 
 
-class Win2(Win1):
+class Win2(Win1): # Training
 
     def __init__(self, master):
 
@@ -240,7 +248,7 @@ class Win2(Win1):
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button)
 
         # ---------- create/chose output directory button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
@@ -315,8 +323,6 @@ class Win2(Win1):
         """
         This function awakes after clicking on the "Reset" button and clears
         everything for the next run of AMULET.
-        Note that this function also resets the directory of the trained model
-        to the default directory ./example_model.
         """
 
         self.FILENAME = ""
@@ -344,7 +350,7 @@ class Win2(Win1):
 
 
 
-class Win3(Win1):
+class Win3(Win1): # Anomaly detection
     def __init__(self, master):
 
         self.master = master
@@ -387,7 +393,7 @@ class Win3(Win1):
 
         # ---------- browse file button ----------
         self.bro_button = tk.Button(master = self.master, text = "Or choose a wav file", command = self.browse_file)
-        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button) #xpos, ypos
+        bro_button_window = self.canvas.create_window(195, 300, anchor = tk.NW, window = self.bro_button)
 
         # ---------- output dir button ----------
         output_button = tk.Button(master = self.master, text = "Choose an output directory", command = self.choose_output_dir)
