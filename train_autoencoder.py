@@ -18,7 +18,6 @@ import time
 import logging
 import textwrap
 
-
 from math import floor
 
 import pandas as pd
@@ -70,7 +69,6 @@ def parse_args():
 		epilog = 'That is what you need to make this script work for  you. Enjoy it!')
 
 	# ---------- parameters for training ----------
-	parser.add_argument('--input_dir', help = 'Set the directory with input files for the training.')
 	parser.add_argument('--input_file', help = 'Pass the file in wav format for the training.')
 	parser.add_argument('--divide_input_sec', type = float, help = 'Decide in how many seconds input file(s) should be divided (standard sampling rate 22050 = 1 sec).', default = 0.1)
 	parser.add_argument('--fft_last', action = 'store_true', help = "Check if you want to make fft of each window, instead of the whole wav first, and then cut it into windows.")
@@ -118,15 +116,12 @@ def check_existing_input(args):
 	if not args.trained_model:
 		print("Checking input parameters for training.")
 
-		if args.input_dir:
-			check_directory(args.input_dir)
-
-		elif args.input_file:
+		if args.input_file:
 			if not os.path.isfile(args.input_file):
 				print('Please make sure that the input file ' + args.input_file + ' is a legit wav file!')
 				sys.exit()
 		else:
-			print('Please provide the directory with input files for training using --input_dir or provide an input wav file for training using --input_file.')
+			print('Please provide an input wav file for training using --input_file.')
 			sys.exit()
 
 		if args.divide_input_sec <= 0:
@@ -201,34 +196,6 @@ def check_directory(directory, create = False):
 
 
 # ---------- prepare the data for the model ----------
-def load_prepare(filename, seconds = None):
-	"""
-	This function reads the wav file and if needed cuts it from the end to the
-	length of desired seconds number, creates FFT, spectrogram and a pandas
-	Dataframe from the wav signal.
-	:param filename: path to the wav file
-	:param seconds: maximal length of the output wav signal
-	:returns: wav singal of desired length, FFT of the wav, spectrogram, pandas
-				dataframe and the basename of the input wav file, sampling rate
-	"""
-	wav, sr = librosa.load(filename)
-
-	wav = wav[sr:len(wav)-sr] #cut one second from the start and from the end for the roc curve
-
-	if seconds:
-		new_wav = wav[(wav.shape[0] - seconds*sr) : ]
-	else:
-		new_wav = wav
-
-	wav_fft = np.fft.fft(new_wav)
-	s = np.abs(librosa.stft(new_wav))
-
-	wav_pd = pd.DataFrame(wav)
-	wav_name = os.path.basename(filename).split('.')[0]
-
-	return new_wav, wav_fft, s, wav_pd, wav_name, sr
-
-
 def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 	"""
 	This function reads the wav file and cuts it in seconds (with standard sampling
@@ -264,11 +231,6 @@ def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 			for j in range(len(coeffs)):
 				my_row.append(my_statistical_function(coeffs[j][i : i + step], fun_name))
 			one_row = pd.DataFrame([my_row])
-
-			#new_wav = wav[i : i + step]
-			#coeffs, freqs = pywt.cwt(new_wav, scales, wavelet = "morl")
-			#plot_wavelet(coeffs, sr)
-			#one_row = pd.DataFrame([[my_statistical_function(x, fun_name) for x in coeffs]])
 
 			row_name = str(i / sr) + "-" + str((i + step)/sr)
 			one_row.index = [row_name]
@@ -340,7 +302,6 @@ def read_wav(filename, seconds, fft_last, hamming, wavelet, median):
 
 			rows = floor(len(wav)/(sr*seconds))
 			step = floor(spectrogram_length/rows)
-			#print(rows, step)
 
 			i = 0
 			sec = 0
@@ -392,7 +353,7 @@ def compare(wav1, fft1, s1, mel_s1, mfcc1, wav2, fft2, s2, mel_s2, mfcc2):
 
 	ax = plt.subplot(5, 2, 3)
 	pt, = ax.plot(fft1)
-	p = plt.Rectangle((len(fft1)/2, ax.get_ylim()[0]), len(fft1)/2, ax.get_ylim()[1] - ax.get_ylim()[0], facecolor = "grey", fill = True, alpha = 0.75, zorder = 3) #, hatch = "/"
+	p = plt.Rectangle((len(fft1)/2, ax.get_ylim()[0]), len(fft1)/2, ax.get_ylim()[1] - ax.get_ylim()[0], facecolor = "grey", fill = True, alpha = 0.75, zorder = 3)
 	ax.add_patch(p)
 	ax.set_xlim(ax.get_xlim()[0], len(fft1))
 	plt.legend((p, ), ('mirrowed', ), loc = 'upper right')
@@ -415,18 +376,14 @@ def compare(wav1, fft1, s1, mel_s1, mfcc1, wav2, fft2, s2, mel_s2, mfcc2):
 	librosa.display.specshow(mfcc1, x_axis = 'time')
 	plt.colorbar()
 	plt.title("MFCC")
-
-
 	#-----------------------------------------------------------------------------
-
-
 	plt.subplot(5, 2, 2)
 	plt.plot(wav2)
 	plt.title("WAV signal 2")
 
 	ax = plt.subplot(5, 2, 4)
 	pt, = ax.plot(fft2)
-	p = plt.Rectangle((len(fft2)/2, ax.get_ylim()[0]), len(fft2)/2, ax.get_ylim()[1] - ax.get_ylim()[0], facecolor = "grey", fill = True, alpha = 0.75, zorder = 3) #, hatch = "/"
+	p = plt.Rectangle((len(fft2)/2, ax.get_ylim()[0]), len(fft2)/2, ax.get_ylim()[1] - ax.get_ylim()[0], facecolor = "grey", fill = True, alpha = 0.75, zorder = 3)
 	ax.add_patch(p)
 	ax.set_xlim(ax.get_xlim()[0], len(fft2))
 	plt.legend((p, ), ('mirrowed', ), loc = 'upper right')
@@ -480,42 +437,6 @@ def check_for_normal_distribution(train):
 	k2, p = stats.normaltest(train.iloc[:, 2])
 	print("spectrogram is normal", p >= alpha)
 
-	"""
-	#for numpy array (after MinMaxScaler)
-	plt.hist(X_train[:, 0], bins = 100, alpha = 0.2, label = train.columns[0])
-	plt.hist(X_train[:, 1], bins = 100, alpha = 0.2, label = train.columns[1])
-	plt.hist(X_train[:, 2], bins = 100, alpha = 0.2, label = train.columns[2])
-	plt.legend(loc = "upper right")
-	plt.title("Data distribution after normalization")
-	plt.show()
-
-	alpha = 1e-3
-	k2, p = stats.normaltest(X_train[:, 0])
-	print("wav is normal", p >= alpha)
-	k2, p = stats.normaltest(X_train[:, 1])
-	print("fft is normal", p >= alpha)
-	k2, p = stats.normaltest(X_train[:, 2])
-	print("spectrogram is normal", p >= alpha)
-	"""
-
-
-def plot_wavelet(coeffs, sr, scales = np.arange(1, 50)):
-	"""
-	This function plots the wavelet transform in cool-warm colormap.
-	The x axis is represented in seconds instead of real signal length for easier understanding.
-	:param coeffs: array of coefficients calculated by the continuous wavelet transform
-	:param sr: sampling rate calculated when librosa reads the file
-	"""
-	fig, ax = plt.subplots(figsize = (14, 6), dpi = 80)
-	ax.imshow(coeffs, cmap = 'coolwarm', aspect = 'auto')
-	labels = ax.get_xticks().tolist()
-	new_labels = [round(float(x)/sr, 2) for x in labels]
-	ax.set_xticklabels(new_labels)
-	#ax.set_yticklabels(np.arange(30, 210, 20))
-	ax.set_ylabel("Wavelet Scale")
-	ax.set_xlabel("Time in sec")
-	plt.show()
-
 
 def prepare_reshape(X, timesteps):
 	"""
@@ -550,27 +471,6 @@ def prepare_reshape(X, timesteps):
 
 
 # ---------- build the model ----------
-def autoencoder_model_bigger(X):
-	"""
-	This is an autoencoder model with three LSTM layers on both sides.
-	:param X: input data for the model
-	:returns: autoencoder model
-	"""
-	inputs = Input(shape = (X.shape[1], X.shape[2]))
-	L1 = LSTM(24, activation = 'relu', return_sequences = True)(inputs)#,
-		#kernel_regularizer = regularizers.l2(0.00))(inputs)
-	L2 = LSTM(12, activation = 'relu', return_sequences = True)(L1)
-	L3 = LSTM(4, activation = 'relu', return_sequences = False)(L2)
-	L4 = RepeatVector(X.shape[1])(L3)
-	L5 = LSTM(4, activation = 'relu', return_sequences = True)(L4)
-	L6 = LSTM(12, activation = 'relu', return_sequences = True)(L5)
-	L7 = LSTM(24, activation = 'relu', return_sequences = True)(L6)
-	output = TimeDistributed(Dense(X.shape[2]))(L7)
-
-	model = Model(inputs = inputs, outputs = output)
-	return model
-
-
 def autoencoder_model(X):
 	"""
 	This is an autoencoder model with two LSTM layers on both sides.
@@ -578,8 +478,7 @@ def autoencoder_model(X):
 	:returns: autoencoder model
 	"""
 	inputs = Input(shape = (X.shape[1], X.shape[2]))
-	L1 = LSTM(16, activation = 'relu', return_sequences = True)(inputs)#,
-		#kernel_regularizer = regularizers.l2(0.00))(inputs)
+	L1 = LSTM(16, activation = 'relu', return_sequences = True)(inputs)
 	L2 = LSTM(4, activation = 'relu', return_sequences = False)(L1)
 	L3 = RepeatVector(X.shape[1])(L2)
 	L4 = LSTM(4, activation = 'relu', return_sequences = True)(L3)
@@ -619,14 +518,7 @@ def main_script():
 		logger.info("Start training")
 
 		# ---------- read the input and save the dataframe ----------
-		if args.input_dir:
-			for f in os.listdir(args.input_dir):
-				if f.endswith(".wav"):
-					merged_data, _ = read_wav(os.path.join(args.input_dir, f), args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
-				else:
-					continue
-		else: #otherwise we read from a long wav file
-			merged_data, _ = read_wav(args.input_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
+		merged_data, _ = read_wav(args.input_file, args.divide_input_sec, args.fft_last, args.hamming, args.wavelet, args.median)
 
 		print("Merged data shape:", merged_data.shape)
 		merged_data_filename = os.path.join(args.output_dir, "training_data.csv")
@@ -741,7 +633,6 @@ def main_script():
 
 		print("Predict data shape:", test_data.shape)
 
-		############ ROC ##############
 		test_data_filename = os.path.join(args.output_dir, "data_for_prediction.csv")
 		logger.info("Saving the data for prediction " + test_data_filename)
 		test_data.to_csv(test_data_filename)
@@ -781,7 +672,7 @@ def main_script():
 		ax.plot(scored['Loss_mae'], color = 'blue', label = 'Loss MAE')
 		ax.plot(scored['Threshold'], color = 'red', label = "Threshold")
 
-		labels = ax.get_xticks() #.tolist()
+		labels = ax.get_xticks()
 
 		#get the index values from the dataset and cut to get the second and 2 values after comma
 		new_labels = [x.split("-")[0][:-13] for x in scored.index.values]
@@ -809,6 +700,7 @@ def main_script():
 	for handler in logger.handlers:
 		handler.close()
 		logger.removeFilter(handler)
+
 
 if __name__ == '__main__':
 	#call the main script
