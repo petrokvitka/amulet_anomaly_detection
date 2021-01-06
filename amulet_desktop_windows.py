@@ -260,8 +260,7 @@ class Win2(Win1): # Training
         self.frames = []
         self.chunk = 1024
         self.sample_format = pyaudio.paInt16
-        self.channels = 2class Win2(Win1): # Training
-
+        self.channels = 2
         self.fs = 44100
 
         self.isrecording = False
